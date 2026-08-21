@@ -6,8 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+
+// Conta universal da unidade: o usuário informado na tela é convertido em um
+// e-mail sintético interno, exigido pelo provedor de autenticação. Não existe
+// cadastro nem troca de senha pela interface.
+const DOMINIO_INTERNO = "saovicente.local";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -29,7 +33,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -42,29 +46,17 @@ function AuthPage() {
   async function entrar(evento: FormEvent) {
     evento.preventDefault();
     setCarregando(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+    const emailInterno = `${usuario.trim().toLowerCase()}@${DOMINIO_INTERNO}`;
+    const { error } = await supabase.auth.signInWithPassword({
+      email: emailInterno,
+      password: senha,
+    });
     setCarregando(false);
     if (error) {
-      toast.error("E-mail ou senha inválidos.");
+      toast.error("Usuário ou senha inválidos.");
       return;
     }
     void navigate({ to: "/pacientes" });
-  }
-
-  async function criarConta(evento: FormEvent) {
-    evento.preventDefault();
-    setCarregando(true);
-    const { data, error } = await supabase.auth.signUp({ email, password: senha });
-    setCarregando(false);
-    if (error) {
-      toast.error("Não foi possível criar a conta. Verifique os dados.");
-      return;
-    }
-    if (data.session) {
-      void navigate({ to: "/pacientes" });
-      return;
-    }
-    toast.success("Conta criada. Confirme o e-mail para entrar.");
   }
 
   return (
@@ -77,72 +69,33 @@ function AuthPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="entrar">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="entrar">Entrar</TabsTrigger>
-              <TabsTrigger value="criar">Criar conta</TabsTrigger>
-            </TabsList>
-            <TabsContent value="entrar">
-              <form onSubmit={entrar} className="mt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-entrar">E-mail</Label>
-                  <Input
-                    id="email-entrar"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="senha-entrar">Senha</Label>
-                  <Input
-                    id="senha-entrar"
-                    type="password"
-                    required
-                    minLength={6}
-                    autoComplete="current-password"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={carregando}>
-                  {carregando ? "Entrando…" : "Entrar"}
-                </Button>
-              </form>
-            </TabsContent>
-            <TabsContent value="criar">
-              <form onSubmit={criarConta} className="mt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-criar">E-mail</Label>
-                  <Input
-                    id="email-criar"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="senha-criar">Senha</Label>
-                  <Input
-                    id="senha-criar"
-                    type="password"
-                    required
-                    minLength={6}
-                    autoComplete="new-password"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={carregando}>
-                  {carregando ? "Criando…" : "Criar conta da unidade"}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <form onSubmit={entrar} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="usuario">Usuário</Label>
+              <Input
+                id="usuario"
+                type="text"
+                required
+                autoComplete="username"
+                value={usuario}
+                onChange={(e) => setUsuario(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="senha">Senha</Label>
+              <Input
+                id="senha"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={carregando}>
+              {carregando ? "Entrando…" : "Entrar"}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
