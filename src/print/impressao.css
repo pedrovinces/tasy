@@ -237,6 +237,19 @@
     display: none;
   }
 
+  /*
+   * Nada da interface entra no papel. O aviso de "evolução registrada" é
+   * disparado ao salvar e continua na tela quando a caixa de impressão abre;
+   * como ele é posicionado de forma fixa, o navegador o imprimia sobre a
+   * identificação do paciente. Menus suspensos e dicas de ferramenta seguem a
+   * mesma regra, pelo mesmo motivo.
+   */
+  [data-sonner-toaster],
+  [data-radix-popper-content-wrapper],
+  [role="tooltip"] {
+    display: none !important;
+  }
+
   .folha-a4 {
     width: auto;
     margin: 0;
