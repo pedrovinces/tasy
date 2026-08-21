@@ -14,7 +14,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { limparSetorSelecionado, obterSetorSelecionado } from "@/lib/setores";
 
 export const Route = createFileRoute("/_authenticated")({
-  ssr: false,
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
