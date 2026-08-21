@@ -27,13 +27,12 @@
 
 .folha-cabecalho {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 6mm;
 }
 
 .folha-marca {
   flex: 0 0 42mm;
-  padding-top: 2mm;
 }
 
 .folha-marca img {
@@ -47,15 +46,15 @@
 .folha-identificacao {
   flex: 1;
   border: 0.35mm solid #1a1a1a;
-  padding: 2mm 3mm;
+  padding: 2.5mm 3mm;
   font-size: 8.5pt;
 }
 
 .id-linha {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 1.5mm;
-  margin: 0.9mm 0;
+  margin: 1.1mm 0;
 }
 
 .id-rotulo {
@@ -63,12 +62,15 @@
   white-space: nowrap;
 }
 
+/* Valor preenchido: caixa alta, fundo preto e letra branca, como na foto. */
 .id-valor {
   flex: 1;
-  border-bottom: 0.2mm dotted #6a6a6a;
-  min-height: 3.6mm;
-  padding: 0 1mm;
+  min-height: 4.2mm;
+  padding: 0.5mm 1.5mm;
+  background: #1a1a1a;
+  color: #ffffff;
   font-weight: bold;
+  text-transform: uppercase;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -78,8 +80,11 @@
   flex: 0 1 30mm;
 }
 
+/* Campo sem valor: linha pontilhada em branco, sem destaque. */
 .id-valor.vazio {
+  background: transparent;
   color: transparent;
+  border-bottom: 0.2mm dotted #6a6a6a;
 }
 
 /* Documento ---------------------------------------------------------------- */
