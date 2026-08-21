@@ -16,9 +16,11 @@ interface FolhaA4Props {
   children: ReactNode;
 }
 
-// Folha A4 com o timbrado oficial. Os rótulos Nome Social, CPF, Prontuário,
-// Registro, Matrícula, Convênio/Plano e DtHr Admissão existem apenas aqui,
-// sempre com valor vazio, por decisão do projeto.
+// Folha A4 com o timbrado oficial. CPF, DtHr Admissão, Prontuário, Registro,
+// Matrícula e Convênio/Plano foram removidos do impresso por decisão do
+// projeto — não aparecem nem como rótulos. Nome Social permanece vazio.
+// Valores preenchidos seguem a foto de exemplo: caixa alta, fundo preto e
+// letra branca.
 export function FolhaA4({ paciente, titulo, dataHora, children }: FolhaA4Props) {
   const impressoEm = formatarDataHora(new Date().toISOString());
 
@@ -51,26 +53,8 @@ export function FolhaA4({ paciente, titulo, dataHora, children }: FolhaA4Props) 
             <span className="id-valor">{paciente.filiacao}</span>
           </div>
           <div className="id-linha">
-            <span className="id-rotulo">CPF:</span>
-            <span className="id-valor vazio">.</span>
             <span className="id-rotulo">Leito:</span>
             <span className="id-valor id-curto">{paciente.leito}</span>
-          </div>
-          <div className="id-linha">
-            <span className="id-rotulo">DtHr Admissão:</span>
-            <span className="id-valor vazio">.</span>
-            <span className="id-rotulo">Prontuário:</span>
-            <span className="id-valor id-curto vazio">.</span>
-          </div>
-          <div className="id-linha">
-            <span className="id-rotulo">Registro:</span>
-            <span className="id-valor vazio">.</span>
-            <span className="id-rotulo">Matrícula:</span>
-            <span className="id-valor vazio">.</span>
-          </div>
-          <div className="id-linha">
-            <span className="id-rotulo">Convênio/Plano:</span>
-            <span className="id-valor vazio">.</span>
           </div>
           <div className="id-linha">
             <span className="id-rotulo">Setor:</span>
