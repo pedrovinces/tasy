@@ -1,5 +1,5 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { Printer, Search, Trash2, UserPlus } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -49,6 +49,7 @@ import {
   listarPacientes,
 } from "@/lib/pacientes.functions";
 import { pacienteSchema } from "@/lib/schemas";
+import { obterSetorSelecionado, SETORES } from "@/lib/setores";
 
 const pacientesQuery = queryOptions({
   queryKey: ["pacientes"],
@@ -76,20 +77,25 @@ const formInicial = {
   data_nascimento: "",
   sexo: "",
   leito: "",
-  setor: "UTI",
+  setor: "",
 };
 
 function ListaPacientes() {
   const { data: pacientes } = useSuspenseQuery(pacientesQuery);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const setorAtual = obterSetorSelecionado();
   const [busca, setBusca] = useState("");
   const [dialogAberto, setDialogAberto] = useState(false);
-  const [form, setForm] = useState(formInicial);
+  const [form, setForm] = useState({ ...formInicial, setor: setorAtual ?? "" });
   const [salvando, setSalvando] = useState(false);
 
+  // Sem setor escolhido, a listagem não abre: volta para a escolha do setor.
+  if (!setorAtual) return <Navigate to="/setores" replace />;
+
   const termo = busca.trim().toLowerCase();
-  const filtrados = pacientes.filter(
+  const doSetor = pacientes.filter((p) => p.setor === setorAtual);
+  const filtrados = doSetor.filter(
     (p) =>
       termo.length === 0 ||
       p.nome_completo.toLowerCase().includes(termo) ||
@@ -108,7 +114,7 @@ function ListaPacientes() {
       await criarPaciente({ data: resultado.data });
       toast.success("Paciente cadastrado.");
       setDialogAberto(false);
-      setForm(formInicial);
+      setForm({ ...formInicial, setor: setorAtual });
       await queryClient.invalidateQueries({ queryKey: ["pacientes"] });
     } catch {
       toast.error("Não foi possível cadastrar o paciente.");
@@ -130,7 +136,9 @@ function ListaPacientes() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold text-foreground">Pacientes</h1>
+        <h1 className="text-2xl font-semibold text-foreground">
+          Pacientes <span className="text-muted-foreground">· {setorAtual}</span>
+        </h1>
         <Dialog open={dialogAberto} onOpenChange={setDialogAberto}>
           <DialogTrigger asChild>
             <Button>
@@ -202,13 +210,22 @@ function ListaPacientes() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="setor">Setor</Label>
-                  <Input
-                    id="setor"
+                  <Label>Setor</Label>
+                  <Select
                     value={form.setor}
-                    onChange={(e) => setForm({ ...form, setor: e.target.value })}
-                    required
-                  />
+                    onValueChange={(valor) => setForm({ ...form, setor: valor })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SETORES.map((setor) => (
+                        <SelectItem key={setor} value={setor}>
+                          {setor}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <Button type="submit" className="w-full" disabled={salvando}>
@@ -231,8 +248,8 @@ function ListaPacientes() {
 
       {filtrados.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          {pacientes.length === 0
-            ? "Nenhum paciente cadastrado. Use “Novo paciente” para começar."
+          {doSetor.length === 0
+            ? `Nenhum paciente no setor ${setorAtual}. Use “Novo paciente” para começar.`
             : "Nenhum paciente encontrado para a busca."}
         </p>
       ) : (
