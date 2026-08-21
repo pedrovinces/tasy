@@ -1,6 +1,6 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileText, Pencil, Printer, ScrollText } from "lucide-react";
+import { ArrowLeft, FileText, Pencil, Printer, ScrollText } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -104,11 +104,19 @@ function FichaPaciente() {
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0">
-          <div>
-            <CardTitle className="text-xl">{paciente.nome_completo}</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Leito {paciente.leito} · {paciente.setor}
-            </p>
+          <div className="flex items-start gap-3">
+            <Button asChild variant="outline" size="icon" className="shrink-0">
+              <Link to="/pacientes">
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Voltar para a listagem</span>
+              </Link>
+            </Button>
+            <div>
+              <CardTitle className="text-xl">{paciente.nome_completo}</CardTitle>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Leito {paciente.leito} · {paciente.setor}
+              </p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Dialog open={editAberto} onOpenChange={setEditAberto}>
