@@ -80,7 +80,7 @@ function ImprimirEvolucao() {
 
       <FolhaA4
         paciente={paciente}
-        titulo="Evolução Clínica"
+        titulo="Evolução Multiprofissional"
         dataHora={formatarDataHora(evolucao.data_hora)}
       >
         {evolucao.texto.split("\n").map((paragrafo, indice) => (
