@@ -39,7 +39,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) void navigate({ to: "/pacientes", replace: true });
+      if (data.user) void navigate({ to: "/setores", replace: true });
     });
   }, [navigate]);
 
@@ -56,7 +56,7 @@ function AuthPage() {
       toast.error("Usuário ou senha inválidos.");
       return;
     }
-    void navigate({ to: "/pacientes" });
+    void navigate({ to: "/setores" });
   }
 
   return (
