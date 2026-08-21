@@ -60,7 +60,18 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted/40 px-4">
+      {/* Logo servido de public/timbrado/. Enquanto o arquivo não estiver lá,
+          a imagem se esconde em vez de exibir ícone quebrado — a caixa de
+          acesso continua funcionando normalmente. */}
+      <img
+        src="/timbrado/logo-sao-vicente.svg"
+        alt="Hospital São Vicente"
+        className="h-16 w-auto max-w-[16rem]"
+        onError={(evento) => {
+          evento.currentTarget.style.display = "none";
+        }}
+      />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl">Contingência UTI</CardTitle>
