@@ -108,7 +108,6 @@
 }
 
 .folha-corpo {
-  flex: 1 0 auto;
   font-size: 11pt;
   text-align: justify;
 }
@@ -143,7 +142,7 @@
 
 .folha-linha-assinatura {
   width: 90mm;
-  margin: 22mm auto 12mm;
+  margin: 14mm auto 10mm;
   border-top: 0.35mm solid #1a1a1a;
   padding-top: 1.5mm;
   text-align: center;
@@ -155,7 +154,6 @@
 /* Rodapé institucional ------------------------------------------------------ */
 
 .folha-rodape {
-  margin-top: auto;
   border-top: 0.3mm solid #1a1a1a;
   padding-top: 2mm;
   text-align: center;
@@ -189,9 +187,11 @@
   gap: 4mm;
 }
 
+/* Logo e QR code com a mesma altura, como na foto do timbrado. */
 .rodape-logo {
-  max-width: 38mm;
-  max-height: 9mm;
+  height: 15mm;
+  width: auto;
+  max-width: 60mm;
   object-fit: contain;
 }
 
