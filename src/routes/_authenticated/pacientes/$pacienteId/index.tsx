@@ -1,6 +1,6 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, FileText, Pencil, Printer, ScrollText } from "lucide-react";
+import { ArrowLeft, FileText, Pencil, ScrollText } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -24,8 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { listarDocumentos } from "@/lib/documentos.functions";
-import { calcularIdade, formatarData, formatarDataHora } from "@/lib/format";
+import { calcularIdade, formatarData } from "@/lib/format";
 import { atualizarLocalPaciente, obterPaciente } from "@/lib/pacientes.functions";
 import { SETORES } from "@/lib/setores";
 
@@ -35,27 +34,17 @@ const pacienteQuery = (id: string) =>
     queryFn: () => obterPaciente({ data: { id } }),
   });
 
-const documentosQuery = (id: string) =>
-  queryOptions({
-    queryKey: ["documentos", id],
-    queryFn: () => listarDocumentos({ data: { paciente_id: id } }),
-  });
-
 export const Route = createFileRoute("/_authenticated/pacientes/$pacienteId/")({
-  loader: async ({ context, params }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(pacienteQuery(params.pacienteId)),
-      context.queryClient.ensureQueryData(documentosQuery(params.pacienteId)),
-    ]);
-  },
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(pacienteQuery(params.pacienteId)),
   head: () => ({
     meta: [
       { title: "Paciente — Contingência UTI" },
-      { name: "description", content: "Evoluções e receitas do paciente em contingência." },
+      { name: "description", content: "Dados do paciente em contingência." },
       { property: "og:title", content: "Paciente — Contingência UTI" },
       {
         property: "og:description",
-        content: "Evoluções e receitas do paciente em contingência.",
+        content: "Dados do paciente em contingência.",
       },
     ],
   }),
@@ -67,7 +56,6 @@ export const Route = createFileRoute("/_authenticated/pacientes/$pacienteId/")({
 function FichaPaciente() {
   const { pacienteId } = Route.useParams();
   const { data: paciente } = useSuspenseQuery(pacienteQuery(pacienteId));
-  const { data: documentos } = useSuspenseQuery(documentosQuery(pacienteId));
   const queryClient = useQueryClient();
   const [editAberto, setEditAberto] = useState(false);
   const [leito, setLeito] = useState("");
@@ -218,68 +206,10 @@ function FichaPaciente() {
         </CardContent>
       </Card>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">Evoluções</h2>
-        {documentos.evolucoes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma evolução registrada.</p>
-        ) : (
-          <div className="space-y-2">
-            {documentos.evolucoes.map((evolucao) => (
-              <div
-                key={evolucao.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-card px-4 py-3"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground">
-                    {formatarDataHora(evolucao.data_hora)}
-                  </p>
-                  <p className="truncate text-sm text-muted-foreground">
-                    {evolucao.texto.slice(0, 140)}
-                    {evolucao.texto.length > 140 ? "…" : ""}
-                  </p>
-                </div>
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/imprimir/evolucao/$evolucaoId" params={{ evolucaoId: evolucao.id }}>
-                    <Printer className="mr-2 h-4 w-4" />
-                    Imprimir
-                  </Link>
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground">Receitas</h2>
-        {documentos.receitas.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhuma receita registrada.</p>
-        ) : (
-          <div className="space-y-2">
-            {documentos.receitas.map((receita) => (
-              <div
-                key={receita.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-card px-4 py-3"
-              >
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {formatarDataHora(receita.data_hora)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {receita.tipo === "itens" ? "Receita em itens" : "Receita em texto livre"}
-                  </p>
-                </div>
-                <Button asChild size="sm" variant="outline">
-                  <Link to="/imprimir/receita/$receitaId" params={{ receitaId: receita.id }}>
-                    <Printer className="mr-2 h-4 w-4" />
-                    Imprimir
-                  </Link>
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <p className="text-sm text-muted-foreground">
+        Evoluções e receitas não ficam salvas: após o registro, o documento abre na folha de
+        impressão e é descartado ao sair dela.
+      </p>
     </div>
   );
 }

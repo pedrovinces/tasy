@@ -1,23 +1,18 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Printer } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { FolhaA4 } from "@/components/impressao/FolhaA4";
 import { Button } from "@/components/ui/button";
-import { obterReceita } from "@/lib/documentos.functions";
 import { formatarDataHora } from "@/lib/format";
-
-const receitaQuery = (id: string) =>
-  queryOptions({
-    queryKey: ["receita-impressao", id],
-    queryFn: () => obterReceita({ data: { id } }),
-  });
+import {
+  descartarDocumentoImpressao,
+  lerDocumentoImpressao,
+  type DocumentoImpressao,
+} from "@/lib/impressao-local";
 
 export const Route = createFileRoute("/_authenticated/imprimir/receita/$receitaId")({
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(receitaQuery(params.receitaId)),
   head: () => ({
     meta: [
       { title: "Impressão de receita — Contingência UTI" },
@@ -33,12 +28,18 @@ export const Route = createFileRoute("/_authenticated/imprimir/receita/$receitaI
 
 function ImprimirReceita() {
   const { receitaId } = Route.useParams();
-  const { data } = useSuspenseQuery(receitaQuery(receitaId));
+  // O documento vive apenas nesta sessão do navegador — nada vai para a nuvem.
+  const [documento] = useState<DocumentoImpressao | null>(() =>
+    lerDocumentoImpressao(receitaId),
+  );
+
+  // Ao sair da folha, o documento é descartado: não fica salvo em lugar nenhum.
+  useEffect(() => () => descartarDocumentoImpressao(receitaId), [receitaId]);
 
   // Abre a caixa de impressão automaticamente quando a folha termina de
-  // carregar (dados + imagens do timbrado).
+  // carregar (imagens do timbrado).
   useEffect(() => {
-    if (!data) return;
+    if (!documento) return;
     let cancelado = false;
     let disparado = false;
     const disparar = () => {
@@ -58,10 +59,10 @@ function ImprimirReceita() {
       window.clearTimeout(fallback);
       window.removeEventListener("load", quandoCarregar);
     };
-  }, [data]);
+  }, [documento]);
 
-  if (!data || !data.paciente) return <NaoEncontrado />;
-  const { receita, itens, paciente } = data;
+  if (!documento || documento.tipo !== "receita") return <NaoEncontrado />;
+  const { paciente } = documento;
 
   return (
     <div>
@@ -78,8 +79,12 @@ function ImprimirReceita() {
         </Button>
       </div>
 
-      <FolhaA4 paciente={paciente} titulo="Receita" dataHora={formatarDataHora(receita.data_hora)}>
-        {receita.tipo === "itens" ? (
+      <FolhaA4
+        paciente={paciente}
+        titulo="Receita"
+        dataHora={formatarDataHora(documento.data_hora)}
+      >
+        {documento.formato === "itens" ? (
           <table className="folha-tabela-receita">
             <thead>
               <tr>
@@ -90,8 +95,8 @@ function ImprimirReceita() {
               </tr>
             </thead>
             <tbody>
-              {itens.map((item) => (
-                <tr key={item.id}>
+              {documento.itens.map((item, indice) => (
+                <tr key={indice}>
                   <td>{item.medicamento}</td>
                   <td>{item.dose}</td>
                   <td>{item.via}</td>
@@ -101,7 +106,7 @@ function ImprimirReceita() {
             </tbody>
           </table>
         ) : (
-          (receita.texto_livre ?? "").split("\n").map((paragrafo, indice) => (
+          (documento.texto_livre ?? "").split("\n").map((paragrafo, indice) => (
             <p key={indice}>{paragrafo}</p>
           ))
         )}
