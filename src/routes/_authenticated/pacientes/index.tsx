@@ -1,5 +1,5 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Printer, Search, Trash2, UserPlus } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -82,6 +82,7 @@ const formInicial = {
 function ListaPacientes() {
   const { data: pacientes } = useSuspenseQuery(pacientesQuery);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const [dialogAberto, setDialogAberto] = useState(false);
   const [form, setForm] = useState(formInicial);
