@@ -82,9 +82,9 @@ function NovaReceita() {
     }
     setSalvando(true);
     try {
-      await criarReceita({ data: resultado.data });
-      toast.success("Receita registrada. Imprima, assine e carimbe a folha.");
-      void navigate({ to: "/pacientes/$pacienteId", params: { pacienteId } });
+      const { id } = await criarReceita({ data: resultado.data });
+      toast.success("Receita registrada. A folha de impressão vai abrir.");
+      void navigate({ to: "/imprimir/receita/$receitaId", params: { receitaId: id } });
     } catch {
       toast.error("Não foi possível registrar a receita.");
       setSalvando(false);

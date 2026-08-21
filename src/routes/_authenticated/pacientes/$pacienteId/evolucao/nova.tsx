@@ -64,9 +64,9 @@ function NovaEvolucao() {
     }
     setSalvando(true);
     try {
-      await criarEvolucao({ data: resultado.data });
-      toast.success("Evolução registrada. Imprima, assine e carimbe a folha.");
-      void navigate({ to: "/pacientes/$pacienteId", params: { pacienteId } });
+      const { id } = await criarEvolucao({ data: resultado.data });
+      toast.success("Evolução registrada. A folha de impressão vai abrir.");
+      void navigate({ to: "/imprimir/evolucao/$evolucaoId", params: { evolucaoId: id } });
     } catch {
       toast.error("Não foi possível registrar a evolução.");
       setSalvando(false);
