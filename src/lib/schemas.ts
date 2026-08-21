@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { SETORES } from "./setores";
+
 // ---------------------------------------------------------------------------
 // Tipos compartilhados (client-safe)
 // ---------------------------------------------------------------------------
@@ -65,7 +67,7 @@ export const pacienteSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Data de nascimento inválida"),
   sexo: z.string().trim().min(1, "Informe o sexo").max(20),
   leito: z.string().trim().min(1, "Informe o leito").max(20),
-  setor: z.string().trim().min(1, "Informe o setor").max(100),
+  setor: z.enum(SETORES, { message: "Selecione o setor" }),
 });
 
 export type PacienteInput = z.infer<typeof pacienteSchema>;
