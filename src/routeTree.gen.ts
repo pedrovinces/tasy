@@ -10,33 +10,136 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes/index'
+import { Route as AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport } from './routes/_authenticated/imprimir/evolucao/$evolucaoId'
+import { Route as AuthenticatedImprimirReceitaReceitaIdRouteImport } from './routes/_authenticated/imprimir/receita/$receitaId'
+import { Route as AuthenticatedPacientesPacienteIdIndexRouteImport } from './routes/_authenticated/pacientes/$pacienteId/index'
+import { Route as AuthenticatedPacientesPacienteIdEvolucaoNovaRouteImport } from './routes/_authenticated/pacientes/$pacienteId/evolucao/nova'
+import { Route as AuthenticatedPacientesPacienteIdReceitaNovaRouteImport } from './routes/_authenticated/pacientes/$pacienteId/receita/nova'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedPacientesIndexRoute =
+  AuthenticatedPacientesIndexRouteImport.update({
+    id: '/pacientes/',
+    path: '/pacientes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedImprimirEvolucaoEvolucaoIdRoute =
+  AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport.update({
+    id: '/imprimir/evolucao/$evolucaoId',
+    path: '/imprimir/evolucao/$evolucaoId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedImprimirReceitaReceitaIdRoute =
+  AuthenticatedImprimirReceitaReceitaIdRouteImport.update({
+    id: '/imprimir/receita/$receitaId',
+    path: '/imprimir/receita/$receitaId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPacientesPacienteIdIndexRoute =
+  AuthenticatedPacientesPacienteIdIndexRouteImport.update({
+    id: '/pacientes/$pacienteId/',
+    path: '/pacientes/$pacienteId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPacientesPacienteIdEvolucaoNovaRoute =
+  AuthenticatedPacientesPacienteIdEvolucaoNovaRouteImport.update({
+    id: '/pacientes/$pacienteId/evolucao/nova',
+    path: '/pacientes/$pacienteId/evolucao/nova',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPacientesPacienteIdReceitaNovaRoute =
+  AuthenticatedPacientesPacienteIdReceitaNovaRouteImport.update({
+    id: '/pacientes/$pacienteId/receita/nova',
+    path: '/pacientes/$pacienteId/receita/nova',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  '/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
+  '/pacientes/$pacienteId/': typeof AuthenticatedPacientesPacienteIdIndexRoute
+  '/pacientes/$pacienteId/evolucao/nova': typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  '/pacientes/$pacienteId/receita/nova': typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/pacientes': typeof AuthenticatedPacientesIndexRoute
+  '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  '/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
+  '/pacientes/$pacienteId': typeof AuthenticatedPacientesPacienteIdIndexRoute
+  '/pacientes/$pacienteId/evolucao/nova': typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  '/pacientes/$pacienteId/receita/nova': typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
+  '/_authenticated/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  '/_authenticated/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
+  '/_authenticated/pacientes/$pacienteId/': typeof AuthenticatedPacientesPacienteIdIndexRoute
+  '/_authenticated/pacientes/$pacienteId/evolucao/nova': typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  '/_authenticated/pacientes/$pacienteId/receita/nova': typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/pacientes/'
+    | '/imprimir/evolucao/$evolucaoId'
+    | '/imprimir/receita/$receitaId'
+    | '/pacientes/$pacienteId/'
+    | '/pacientes/$pacienteId/evolucao/nova'
+    | '/pacientes/$pacienteId/receita/nova'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/pacientes'
+    | '/imprimir/evolucao/$evolucaoId'
+    | '/imprimir/receita/$receitaId'
+    | '/pacientes/$pacienteId'
+    | '/pacientes/$pacienteId/evolucao/nova'
+    | '/pacientes/$pacienteId/receita/nova'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/pacientes/'
+    | '/_authenticated/imprimir/evolucao/$evolucaoId'
+    | '/_authenticated/imprimir/receita/$receitaId'
+    | '/_authenticated/pacientes/$pacienteId/'
+    | '/_authenticated/pacientes/$pacienteId/evolucao/nova'
+    | '/_authenticated/pacientes/$pacienteId/receita/nova'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +151,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/pacientes/': {
+      id: '/_authenticated/pacientes/'
+      path: '/pacientes'
+      fullPath: '/pacientes/'
+      preLoaderRoute: typeof AuthenticatedPacientesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/imprimir/evolucao/$evolucaoId': {
+      id: '/_authenticated/imprimir/evolucao/$evolucaoId'
+      path: '/imprimir/evolucao/$evolucaoId'
+      fullPath: '/imprimir/evolucao/$evolucaoId'
+      preLoaderRoute: typeof AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/imprimir/receita/$receitaId': {
+      id: '/_authenticated/imprimir/receita/$receitaId'
+      path: '/imprimir/receita/$receitaId'
+      fullPath: '/imprimir/receita/$receitaId'
+      preLoaderRoute: typeof AuthenticatedImprimirReceitaReceitaIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pacientes/$pacienteId/': {
+      id: '/_authenticated/pacientes/$pacienteId/'
+      path: '/pacientes/$pacienteId'
+      fullPath: '/pacientes/$pacienteId/'
+      preLoaderRoute: typeof AuthenticatedPacientesPacienteIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pacientes/$pacienteId/evolucao/nova': {
+      id: '/_authenticated/pacientes/$pacienteId/evolucao/nova'
+      path: '/pacientes/$pacienteId/evolucao/nova'
+      fullPath: '/pacientes/$pacienteId/evolucao/nova'
+      preLoaderRoute: typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pacientes/$pacienteId/receita/nova': {
+      id: '/_authenticated/pacientes/$pacienteId/receita/nova'
+      path: '/pacientes/$pacienteId/receita/nova'
+      fullPath: '/pacientes/$pacienteId/receita/nova'
+      preLoaderRoute: typeof AuthenticatedPacientesPacienteIdReceitaNovaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
+  AuthenticatedImprimirEvolucaoEvolucaoIdRoute: typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  AuthenticatedImprimirReceitaReceitaIdRoute: typeof AuthenticatedImprimirReceitaReceitaIdRoute
+  AuthenticatedPacientesPacienteIdIndexRoute: typeof AuthenticatedPacientesPacienteIdIndexRoute
+  AuthenticatedPacientesPacienteIdEvolucaoNovaRoute: typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  AuthenticatedPacientesPacienteIdReceitaNovaRoute: typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
+  AuthenticatedImprimirEvolucaoEvolucaoIdRoute:
+    AuthenticatedImprimirEvolucaoEvolucaoIdRoute,
+  AuthenticatedImprimirReceitaReceitaIdRoute:
+    AuthenticatedImprimirReceitaReceitaIdRoute,
+  AuthenticatedPacientesPacienteIdIndexRoute:
+    AuthenticatedPacientesPacienteIdIndexRoute,
+  AuthenticatedPacientesPacienteIdEvolucaoNovaRoute:
+    AuthenticatedPacientesPacienteIdEvolucaoNovaRoute,
+  AuthenticatedPacientesPacienteIdReceitaNovaRoute:
+    AuthenticatedPacientesPacienteIdReceitaNovaRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
