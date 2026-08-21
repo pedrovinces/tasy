@@ -1,5 +1,5 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Printer, Search, Trash2, UserPlus } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -82,6 +82,7 @@ const formInicial = {
 function ListaPacientes() {
   const { data: pacientes } = useSuspenseQuery(pacientesQuery);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const [dialogAberto, setDialogAberto] = useState(false);
   const [form, setForm] = useState(formInicial);
@@ -250,7 +251,16 @@ function ListaPacientes() {
             </TableHeader>
             <TableBody>
               {filtrados.map((p) => (
-                <TableRow key={p.id}>
+                <TableRow
+                  key={p.id}
+                  className="cursor-pointer hover:bg-accent"
+                  onClick={() =>
+                    navigate({
+                      to: "/pacientes/$pacienteId",
+                      params: { pacienteId: p.id },
+                    })
+                  }
+                >
                   <TableCell className="font-medium">{p.leito}</TableCell>
                   <TableCell>{p.nome_completo}</TableCell>
                   <TableCell>{formatarData(p.data_nascimento)}</TableCell>
@@ -258,15 +268,10 @@ function ListaPacientes() {
                   <TableCell>{p.sexo}</TableCell>
                   <TableCell>{p.setor}</TableCell>
                   <TableCell>
-                    <div className="flex justify-end gap-1">
-                      <Button asChild size="sm" variant="outline">
-                        <Link
-                          to="/pacientes/$pacienteId"
-                          params={{ pacienteId: p.id }}
-                        >
-                          Abrir
-                        </Link>
-                      </Button>
+                    <div
+                      className="flex justify-end gap-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="sm" variant="ghost" aria-label="Remover da lista">
