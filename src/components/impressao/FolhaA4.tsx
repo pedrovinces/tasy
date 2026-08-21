@@ -99,7 +99,6 @@ export function FolhaA4({ paciente, titulo, dataHora, children }: FolhaA4Props) 
         </p>
 
         <div className="rodape-final">
-          <span>Impresso por ______________</span>
           <span>{impressoEm}</span>
           <span>Contatos: (21) 2529-4422</span>
           <span>Pág. 1 de 1</span>
