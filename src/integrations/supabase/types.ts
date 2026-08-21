@@ -14,38 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      evolucoes: {
-        Row: {
-          created_at: string
-          data_hora: string
-          id: string
-          paciente_id: string
-          texto: string
-        }
-        Insert: {
-          created_at?: string
-          data_hora?: string
-          id?: string
-          paciente_id: string
-          texto: string
-        }
-        Update: {
-          created_at?: string
-          data_hora?: string
-          id?: string
-          paciente_id?: string
-          texto?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "evolucoes_paciente_id_fkey"
-            columns: ["paciente_id"]
-            isOneToOne: false
-            referencedRelation: "pacientes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       pacientes: {
         Row: {
           ativo: boolean
@@ -84,82 +52,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      receita_itens: {
-        Row: {
-          created_at: string
-          dose: string
-          frequencia: string
-          id: string
-          medicamento: string
-          ordem: number
-          receita_id: string
-          via: string
-        }
-        Insert: {
-          created_at?: string
-          dose: string
-          frequencia: string
-          id?: string
-          medicamento: string
-          ordem?: number
-          receita_id: string
-          via: string
-        }
-        Update: {
-          created_at?: string
-          dose?: string
-          frequencia?: string
-          id?: string
-          medicamento?: string
-          ordem?: number
-          receita_id?: string
-          via?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "receita_itens_receita_id_fkey"
-            columns: ["receita_id"]
-            isOneToOne: false
-            referencedRelation: "receitas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      receitas: {
-        Row: {
-          created_at: string
-          data_hora: string
-          id: string
-          paciente_id: string
-          texto_livre: string | null
-          tipo: string
-        }
-        Insert: {
-          created_at?: string
-          data_hora?: string
-          id?: string
-          paciente_id: string
-          texto_livre?: string | null
-          tipo: string
-        }
-        Update: {
-          created_at?: string
-          data_hora?: string
-          id?: string
-          paciente_id?: string
-          texto_livre?: string | null
-          tipo?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "receitas_paciente_id_fkey"
-            columns: ["paciente_id"]
-            isOneToOne: false
-            referencedRelation: "pacientes"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
