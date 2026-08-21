@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { criarEvolucao } from "@/lib/documentos.functions";
 import { agoraParaInput } from "@/lib/format";
+import { guardarDocumentoImpressao } from "@/lib/impressao-local";
 import { obterPaciente } from "@/lib/pacientes.functions";
 import { evolucaoSchema } from "@/lib/schemas";
 
@@ -43,11 +43,12 @@ function NovaEvolucao() {
   const navigate = useNavigate();
   const [dataHora, setDataHora] = useState(agoraParaInput());
   const [texto, setTexto] = useState("");
-  const [salvando, setSalvando] = useState(false);
 
   if (!paciente) return <NaoEncontrado />;
 
-  async function salvar(evento: FormEvent) {
+  // A evolução não é salva em banco: vai direto para a folha de impressão e
+  // é descartada ao sair dela.
+  function salvar(evento: FormEvent) {
     evento.preventDefault();
     const instante = new Date(dataHora);
     if (Number.isNaN(instante.getTime())) {
@@ -63,14 +64,17 @@ function NovaEvolucao() {
       toast.error(resultado.error.issues[0]?.message ?? "Verifique os campos.");
       return;
     }
-    setSalvando(true);
     try {
-      const { id } = await criarEvolucao({ data: resultado.data });
+      const id = guardarDocumentoImpressao({
+        tipo: "evolucao",
+        paciente: paciente!,
+        data_hora: resultado.data.data_hora,
+        texto: resultado.data.texto,
+      });
       toast.success("Evolução registrada. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/evolucao/$evolucaoId", params: { evolucaoId: id } });
     } catch {
-      toast.error("Não foi possível registrar a evolução.");
-      setSalvando(false);
+      toast.error("Não foi possível preparar a impressão.");
     }
   }
 
@@ -120,9 +124,7 @@ function NovaEvolucao() {
                   Cancelar
                 </Link>
               </Button>
-              <Button type="submit" disabled={salvando}>
-                {salvando ? "Salvando…" : "Registrar evolução"}
-              </Button>
+              <Button type="submit">Registrar evolução</Button>
             </div>
           </form>
         </CardContent>

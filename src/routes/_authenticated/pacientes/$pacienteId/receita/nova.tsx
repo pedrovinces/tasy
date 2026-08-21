@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { criarReceita } from "@/lib/documentos.functions";
 import { agoraParaInput } from "@/lib/format";
+import { guardarDocumentoImpressao } from "@/lib/impressao-local";
 import { obterPaciente } from "@/lib/pacientes.functions";
 import { receitaSchema, type ReceitaItemInput } from "@/lib/schemas";
 
@@ -48,7 +48,6 @@ function NovaReceita() {
   const [tipo, setTipo] = useState<"itens" | "livre">("itens");
   const [itens, setItens] = useState<ReceitaItemInput[]>([{ ...itemVazio }]);
   const [textoLivre, setTextoLivre] = useState("");
-  const [salvando, setSalvando] = useState(false);
 
   if (!paciente) return <NaoEncontrado />;
 
@@ -62,7 +61,9 @@ function NovaReceita() {
     setItens((atuais) => atuais.filter((_, i) => i !== indice));
   }
 
-  async function salvar(evento: FormEvent) {
+  // A receita não é salva em banco: vai direto para a folha de impressão e
+  // é descartada ao sair dela.
+  function salvar(evento: FormEvent) {
     evento.preventDefault();
     const instante = new Date(dataHora);
     if (Number.isNaN(instante.getTime())) {
@@ -80,14 +81,19 @@ function NovaReceita() {
       toast.error(resultado.error.issues[0]?.message ?? "Verifique os campos.");
       return;
     }
-    setSalvando(true);
     try {
-      const { id } = await criarReceita({ data: resultado.data });
+      const id = guardarDocumentoImpressao({
+        tipo: "receita",
+        paciente: paciente!,
+        data_hora: resultado.data.data_hora,
+        formato: resultado.data.tipo,
+        texto_livre: resultado.data.tipo === "livre" ? (resultado.data.texto_livre ?? null) : null,
+        itens: resultado.data.tipo === "itens" ? (resultado.data.itens ?? []) : [],
+      });
       toast.success("Receita registrada. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/receita/$receitaId", params: { receitaId: id } });
     } catch {
-      toast.error("Não foi possível registrar a receita.");
-      setSalvando(false);
+      toast.error("Não foi possível preparar a impressão.");
     }
   }
 
@@ -220,9 +226,7 @@ function NovaReceita() {
                   Cancelar
                 </Link>
               </Button>
-              <Button type="submit" disabled={salvando}>
-                {salvando ? "Salvando…" : "Registrar receita"}
-              </Button>
+              <Button type="submit">Registrar receita</Button>
             </div>
           </form>
         </CardContent>

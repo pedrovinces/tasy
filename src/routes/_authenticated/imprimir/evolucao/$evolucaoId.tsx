@@ -1,29 +1,27 @@
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Printer } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { FolhaA4 } from "@/components/impressao/FolhaA4";
 import { Button } from "@/components/ui/button";
-import { obterEvolucao } from "@/lib/documentos.functions";
 import { formatarDataHora } from "@/lib/format";
-
-const evolucaoQuery = (id: string) =>
-  queryOptions({
-    queryKey: ["evolucao-impressao", id],
-    queryFn: () => obterEvolucao({ data: { id } }),
-  });
+import {
+  descartarDocumentoImpressao,
+  lerDocumentoImpressao,
+  type DocumentoImpressao,
+} from "@/lib/impressao-local";
 
 export const Route = createFileRoute("/_authenticated/imprimir/evolucao/$evolucaoId")({
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(evolucaoQuery(params.evolucaoId)),
   head: () => ({
     meta: [
       { title: "Impressão de evolução — Contingência UTI" },
-      { name: "description", content: "Folha de evolução clínica para impressão." },
+      { name: "description", content: "Folha de evolução multiprofissional para impressão." },
       { property: "og:title", content: "Impressão de evolução — Contingência UTI" },
-      { property: "og:description", content: "Folha de evolução clínica para impressão." },
+      {
+        property: "og:description",
+        content: "Folha de evolução multiprofissional para impressão.",
+      },
     ],
   }),
   errorComponent: ErroRota,
@@ -33,12 +31,18 @@ export const Route = createFileRoute("/_authenticated/imprimir/evolucao/$evoluca
 
 function ImprimirEvolucao() {
   const { evolucaoId } = Route.useParams();
-  const { data } = useSuspenseQuery(evolucaoQuery(evolucaoId));
+  // O documento vive apenas nesta sessão do navegador — nada vai para a nuvem.
+  const [documento] = useState<DocumentoImpressao | null>(() =>
+    lerDocumentoImpressao(evolucaoId),
+  );
+
+  // Ao sair da folha, o documento é descartado: não fica salvo em lugar nenhum.
+  useEffect(() => () => descartarDocumentoImpressao(evolucaoId), [evolucaoId]);
 
   // Abre a caixa de impressão automaticamente quando a folha termina de
-  // carregar (dados + imagens do timbrado).
+  // carregar (imagens do timbrado).
   useEffect(() => {
-    if (!data) return;
+    if (!documento) return;
     let cancelado = false;
     let disparado = false;
     const disparar = () => {
@@ -58,10 +62,10 @@ function ImprimirEvolucao() {
       window.clearTimeout(fallback);
       window.removeEventListener("load", quandoCarregar);
     };
-  }, [data]);
+  }, [documento]);
 
-  if (!data || !data.paciente) return <NaoEncontrado />;
-  const { evolucao, paciente } = data;
+  if (!documento || documento.tipo !== "evolucao") return <NaoEncontrado />;
+  const { paciente } = documento;
 
   return (
     <div>
@@ -81,9 +85,9 @@ function ImprimirEvolucao() {
       <FolhaA4
         paciente={paciente}
         titulo="Evolução Multiprofissional"
-        dataHora={formatarDataHora(evolucao.data_hora)}
+        dataHora={formatarDataHora(documento.data_hora)}
       >
-        {evolucao.texto.split("\n").map((paragrafo, indice) => (
+        {documento.texto.split("\n").map((paragrafo, indice) => (
           <p key={indice}>{paragrafo}</p>
         ))}
       </FolhaA4>

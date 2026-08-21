@@ -19,36 +19,9 @@ export interface Paciente {
   updated_at: string;
 }
 
-export interface Evolucao {
-  id: string;
-  paciente_id: string;
-  data_hora: string;
-  texto: string;
-  created_at: string;
-}
-
-export interface Receita {
-  id: string;
-  paciente_id: string;
-  tipo: "itens" | "livre";
-  data_hora: string;
-  texto_livre: string | null;
-  created_at: string;
-}
-
-export interface ReceitaItem {
-  id: string;
-  receita_id: string;
-  medicamento: string;
-  dose: string;
-  via: string;
-  frequencia: string;
-  ordem: number;
-  created_at: string;
-}
-
 // ---------------------------------------------------------------------------
 // Schemas de validação (usados no cliente e no servidor)
+// Documentos clínicos não têm tipo de banco: nunca são persistidos.
 // ---------------------------------------------------------------------------
 
 export const pacienteSchema = z.object({
