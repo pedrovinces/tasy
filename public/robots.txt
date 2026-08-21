@@ -1,14 +1,3 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Sistema clínico interno: não deve ser indexado por buscadores.
 User-agent: *
-Allow: /
+Disallow: /

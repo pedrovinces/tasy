@@ -12,13 +12,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { agoraParaInput } from "@/lib/format";
 import { guardarDocumentoImpressao } from "@/lib/impressao-local";
-import { obterPaciente } from "@/lib/pacientes.functions";
+import { obterPaciente } from "@/lib/pacientes";
 import { evolucaoSchema } from "@/lib/schemas";
 
 const pacienteQuery = (id: string) =>
   queryOptions({
     queryKey: ["paciente", id],
-    queryFn: () => obterPaciente({ data: { id } }),
+    queryFn: () => obterPaciente(id),
   });
 
 export const Route = createFileRoute("/_authenticated/pacientes/$pacienteId/evolucao/nova")({

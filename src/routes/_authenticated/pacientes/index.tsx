@@ -43,11 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { calcularIdade, formatarData } from "@/lib/format";
-import {
-  criarPaciente,
-  desativarPaciente,
-  listarPacientes,
-} from "@/lib/pacientes.functions";
+import { criarPaciente, desativarPaciente, listarPacientes } from "@/lib/pacientes";
 import { pacienteSchema } from "@/lib/schemas";
 import { obterSetorSelecionado, SETORES } from "@/lib/setores";
 
@@ -111,7 +107,7 @@ function ListaPacientes() {
     }
     setSalvando(true);
     try {
-      await criarPaciente({ data: resultado.data });
+      await criarPaciente(resultado.data);
       toast.success("Paciente cadastrado.");
       setDialogAberto(false);
       setForm({ ...formInicial, setor: setorAtual ?? "" });
@@ -125,7 +121,7 @@ function ListaPacientes() {
 
   async function removerDaLista(id: string) {
     try {
-      await desativarPaciente({ data: { id } });
+      await desativarPaciente(id);
       toast.success("Paciente removido da lista.");
       await queryClient.invalidateQueries({ queryKey: ["pacientes"] });
     } catch {

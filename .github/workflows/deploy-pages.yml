@@ -1,0 +1,66 @@
+name: Publicar no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicação por vez; filas antigas são descartadas.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm run build
+
+      # O Pages serve arquivos, não reescreve URLs: sem isto, abrir
+      # /pacientes direto (ou recarregar a página) devolveria 404 em vez de
+      # entregar o app. O mesmo index.html servido como 404.html devolve o
+      # roteamento ao TanStack Router no navegador.
+      - run: cp dist/index.html dist/404.html
+
+      # Sem isto o Pages passa o build pelo Jekyll, que ignora arquivos e
+      # pastas iniciados por "_".
+      - run: touch dist/.nojekyll
+
+      # Domínio próprio: crie a variável CUSTOM_DOMAIN em
+      # Settings > Secrets and variables > Actions > Variables
+      # (ex.: uti.seudominio.com.br). Sem ela, publica no *.github.io.
+      - name: Gravar CNAME do domínio próprio
+        if: vars.CUSTOM_DOMAIN != ''
+        run: echo "${{ vars.CUSTOM_DOMAIN }}" > dist/CNAME
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
