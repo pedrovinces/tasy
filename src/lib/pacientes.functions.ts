@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { pacienteSchema, type Paciente } from "./schemas";
+import { SETORES } from "./setores";
 
 export const listarPacientes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -46,6 +47,30 @@ export const criarPaciente = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error("Não foi possível cadastrar o paciente.");
     return { id: data.id as string };
+  });
+
+export const atualizarLocalPaciente = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        leito: z.string().trim().min(1, "Informe o leito").max(20),
+        setor: z.enum(SETORES, { message: "Selecione o setor" }),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data: input, context }) => {
+    const { error } = await context.supabase
+      .from("pacientes")
+      .update({
+        leito: input.leito,
+        setor: input.setor,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", input.id);
+    if (error) throw new Error("Não foi possível atualizar o local do paciente.");
+    return { ok: true };
   });
 
 export const desativarPaciente = createServerFn({ method: "POST" })

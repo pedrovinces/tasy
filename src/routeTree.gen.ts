@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedSetoresRouteImport } from './routes/_authenticated/setores'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes/index'
 import { Route as AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport } from './routes/_authenticated/imprimir/evolucao/$evolucaoId'
 import { Route as AuthenticatedImprimirReceitaReceitaIdRouteImport } from './routes/_authenticated/imprimir/receita/$receitaId'
@@ -32,6 +33,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSetoresRoute = AuthenticatedSetoresRouteImport.update({
+  id: '/setores',
+  path: '/setores',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPacientesIndexRoute =
   AuthenticatedPacientesIndexRouteImport.update({
@@ -73,6 +79,7 @@ const AuthenticatedPacientesPacienteIdReceitaNovaRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
   '/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
   '/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/setores': typeof AuthenticatedSetoresRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_authenticated/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
   '/_authenticated/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/setores'
     | '/pacientes/'
     | '/imprimir/evolucao/$evolucaoId'
     | '/imprimir/receita/$receitaId'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/setores'
     | '/pacientes'
     | '/imprimir/evolucao/$evolucaoId'
     | '/imprimir/receita/$receitaId'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/setores'
     | '/_authenticated/pacientes/'
     | '/_authenticated/imprimir/evolucao/$evolucaoId'
     | '/_authenticated/imprimir/receita/$receitaId'
@@ -164,6 +176,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/setores': {
+      id: '/_authenticated/setores'
+      path: '/setores'
+      fullPath: '/setores'
+      preLoaderRoute: typeof AuthenticatedSetoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/pacientes/': {
       id: '/_authenticated/pacientes/'
@@ -211,6 +230,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedSetoresRoute: typeof AuthenticatedSetoresRoute
   AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
   AuthenticatedImprimirEvolucaoEvolucaoIdRoute: typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
   AuthenticatedImprimirReceitaReceitaIdRoute: typeof AuthenticatedImprimirReceitaReceitaIdRoute
@@ -220,6 +240,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedSetoresRoute: AuthenticatedSetoresRoute,
   AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
   AuthenticatedImprimirEvolucaoEvolucaoIdRoute:
     AuthenticatedImprimirEvolucaoEvolucaoIdRoute,
