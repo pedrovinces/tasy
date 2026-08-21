@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import "@/print/impressao.css";
 import logoRedeDor from "@/assets/timbrado/logo-rede-dor.png.asset.json";
 import logoRichet from "@/assets/timbrado/logo-richet.svg.asset.json";
-import logoSaoVicente from "@/assets/timbrado/logo-sao-vicente.svg.asset.json";
 import qrRedeDor from "@/assets/timbrado/qr-rededor.png.asset.json";
 import qrRichet from "@/assets/timbrado/qr-richet.png.asset.json";
 import { calcularIdade, formatarData, formatarDataHora } from "@/lib/format";
@@ -28,7 +27,10 @@ export function FolhaA4({ paciente, titulo, dataHora, children }: FolhaA4Props) 
     <div className="folha-a4">
       <header className="folha-cabecalho">
         <div className="folha-marca">
-          <img src={logoSaoVicente.url} alt="São Vicente — Rede D'Or" />
+          {/* Servido de public/timbrado/: o timbre não pode depender de uma
+              CDN externa continuar no ar na hora de imprimir. Os logos do
+              rodapé ainda apontam para a CDN e precisam do mesmo tratamento. */}
+          <img src="/timbrado/logo-sao-vicente.png" alt="São Vicente — Rede D'Or" />
         </div>
 
         <section className="folha-identificacao">
