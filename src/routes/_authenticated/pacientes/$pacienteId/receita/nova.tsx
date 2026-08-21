@@ -84,7 +84,7 @@ function NovaReceita() {
     try {
       const id = guardarDocumentoImpressao({
         tipo: "receita",
-        paciente,
+        paciente: paciente!,
         data_hora: resultado.data.data_hora,
         formato: resultado.data.tipo,
         texto_livre: resultado.data.tipo === "livre" ? (resultado.data.texto_livre ?? null) : null,

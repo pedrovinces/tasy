@@ -67,7 +67,7 @@ function NovaEvolucao() {
     try {
       const id = guardarDocumentoImpressao({
         tipo: "evolucao",
-        paciente,
+        paciente: paciente!,
         data_hora: resultado.data.data_hora,
         texto: resultado.data.texto,
       });
