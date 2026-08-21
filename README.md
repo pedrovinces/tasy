@@ -76,22 +76,31 @@ O workflow `.github/workflows/deploy-pages.yml` publica a cada push em `main`.
 
 Em **Settings → Pages → Build and deployment**, escolha **Source: GitHub Actions**.
 
+O Pages não funciona em repositório privado no plano Free: é preciso deixar o repositório público
+ou assinar o GitHub Pro. Em qualquer um dos casos o site publicado é público — o que protege os
+dados continua sendo o login e o RLS.
+
 ### 2. Apontar o domínio
 
-1. Crie a variável `CUSTOM_DOMAIN` em **Settings → Secrets and variables → Actions → Variables**
-   com o subdomínio desejado (ex.: `uti.seudominio.com.br`). O workflow grava o arquivo `CNAME`
-   no build a partir dela.
-2. No seu provedor de DNS, crie um registro `CNAME` de `uti` apontando para
-   `pedrovinces.github.io.` (com o ponto final, se o provedor exigir).
-3. Em **Settings → Pages → Custom domain**, informe o mesmo domínio, aguarde a verificação e
-   marque **Enforce HTTPS**.
+O domínio `csv.pedrovinces.com.br` já está fixado em `public/CNAME`, que o build copia para
+`dist/`. (A variável `CUSTOM_DOMAIN`, se existir em Settings → Secrets and variables → Actions →
+Variables, sobrescreve esse valor — útil para publicar em outro domínio sem mexer no código.)
 
-Domínio raiz (`seudominio.com.br`) exige registros `A`/`AAAA` do GitHub em vez do `CNAME` —
-subdomínio é o caminho mais simples.
+No DNS da Locaweb, crie um registro `CNAME`:
+
+| Campo | Valor |
+| --- | --- |
+| Tipo | `CNAME` |
+| Nome / Host | `csv` |
+| Aponta para / Valor | `pedrovinces.github.io.` |
+| TTL | padrão |
+
+Depois, em **Settings → Pages → Custom domain**, informe `csv.pedrovinces.com.br`, aguarde a
+verificação e marque **Enforce HTTPS**.
 
 ### 3. Liberar o domínio no Supabase
 
-Em **Authentication → URL Configuration**, coloque `https://uti.seudominio.com.br` como
+Em **Authentication → URL Configuration**, coloque `https://csv.pedrovinces.com.br` como
 **Site URL** e também na lista de **Redirect URLs**. Sem isso o login falha no domínio novo.
 
 ### Detalhes que o Pages exige
