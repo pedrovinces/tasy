@@ -114,7 +114,7 @@ function ListaPacientes() {
       await criarPaciente({ data: resultado.data });
       toast.success("Paciente cadastrado.");
       setDialogAberto(false);
-      setForm({ ...formInicial, setor: setorAtual });
+      setForm({ ...formInicial, setor: setorAtual ?? "" });
       await queryClient.invalidateQueries({ queryKey: ["pacientes"] });
     } catch {
       toast.error("Não foi possível cadastrar o paciente.");
