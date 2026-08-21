@@ -1,10 +1,6 @@
 import type { ReactNode } from "react";
 
 import "@/print/impressao.css";
-import logoRedeDor from "@/assets/timbrado/logo-rede-dor.png.asset.json";
-import logoRichet from "@/assets/timbrado/logo-richet.svg.asset.json";
-import qrRedeDor from "@/assets/timbrado/qr-rededor.png.asset.json";
-import qrRichet from "@/assets/timbrado/qr-richet.png.asset.json";
 import { calcularIdade, formatarData, formatarDataHora } from "@/lib/format";
 import type { Paciente } from "@/lib/schemas";
 
@@ -81,15 +77,15 @@ export function FolhaA4({ paciente, titulo, dataHora, children }: FolhaA4Props) 
         <div className="rodape-colunas">
           <div className="rodape-coluna">
             <div className="rodape-coluna-topo">
-              <img className="rodape-logo" src={logoRichet.url} alt="Richet" />
-              <img className="rodape-qr" src={qrRichet.url} alt="QR code Richet" />
+              <img className="rodape-logo" src="/timbrado/logo-richet.png" alt="Richet" />
+              <img className="rodape-qr" src="/timbrado/qr-richet.png" alt="QR code Richet" />
             </div>
             <p className="rodape-site">www.richet.com.br</p>
           </div>
           <div className="rodape-coluna">
             <div className="rodape-coluna-topo">
-              <img className="rodape-logo" src={logoRedeDor.url} alt="Rede D'Or" />
-              <img className="rodape-qr" src={qrRedeDor.url} alt="QR code Rede D'Or" />
+              <img className="rodape-logo" src="/timbrado/logo-rede-dor.png" alt="Rede D'Or" />
+              <img className="rodape-qr" src="/timbrado/qr-rededor.png" alt="QR code Rede D'Or" />
             </div>
             <p className="rodape-site">www.rededor.com.br</p>
           </div>
