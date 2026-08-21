@@ -1,0 +1,191 @@
+/*
+ * Folha de impressão A4 do sistema de contingência.
+ * Arquivo propositalmente separado: medidas em milímetros, sem classes
+ * utilitárias, para não deformar o timbrado na impressão.
+ */
+
+.folha-a4 {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 12mm 16mm 16mm;
+  margin: 8mm auto;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11pt;
+  line-height: 1.5;
+  box-shadow: 0 2mm 6mm rgba(0, 0, 0, 0.15);
+}
+
+/* Cabeçalho (timbrado) ---------------------------------------------------- */
+
+.folha-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6mm;
+  padding-bottom: 4mm;
+  border-bottom: 0.7mm solid #1a1a1a;
+}
+
+.folha-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52mm;
+  height: 18mm;
+  border: 0.3mm dashed #9a9a9a;
+  color: #7a7a7a;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7.5pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0 2mm;
+  box-sizing: border-box;
+}
+
+.folha-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Identificação do paciente ------------------------------------------------ */
+
+.folha-identificacao {
+  margin-top: 5mm;
+  border: 0.3mm solid #1a1a1a;
+  padding: 3mm 4mm;
+}
+
+.folha-id-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm 8mm;
+  margin: 1.2mm 0;
+}
+
+.folha-id-campo {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5mm;
+  min-width: 45mm;
+}
+
+.folha-id-campo.campo-largo {
+  flex: 1 1 100%;
+}
+
+.folha-id-rotulo {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7.5pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.folha-id-valor {
+  flex: 1;
+  border-bottom: 0.25mm solid #6a6a6a;
+  min-height: 4.5mm;
+  padding: 0 1mm;
+}
+
+.folha-id-valor.vazio {
+  color: transparent;
+}
+
+/* Documento ---------------------------------------------------------------- */
+
+.folha-titulo {
+  margin: 7mm 0 1mm;
+  text-align: center;
+  font-size: 13pt;
+  font-weight: bold;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.folha-data {
+  text-align: right;
+  font-size: 10pt;
+  margin: 2mm 0 4mm;
+}
+
+.folha-corpo {
+  font-size: 11.5pt;
+  text-align: justify;
+}
+
+.folha-corpo p {
+  margin: 0 0 3mm;
+  white-space: pre-wrap;
+}
+
+.folha-tabela-receita {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5pt;
+}
+
+.folha-tabela-receita th,
+.folha-tabela-receita td {
+  border: 0.25mm solid #1a1a1a;
+  padding: 1.6mm 2.5mm;
+  text-align: left;
+  vertical-align: top;
+}
+
+.folha-tabela-receita th {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #efefef;
+}
+
+/* Rodapé (assinatura e carimbo manuais) ------------------------------------ */
+
+.folha-rodape {
+  margin-top: 22mm;
+  text-align: center;
+}
+
+.folha-linha-assinatura {
+  width: 90mm;
+  margin: 0 auto;
+  border-top: 0.35mm solid #1a1a1a;
+  padding-top: 1.5mm;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Impressão ---------------------------------------------------------------- */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  .app-chrome,
+  .acoes-impressao {
+    display: none;
+  }
+
+  .folha-a4 {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    box-shadow: none;
+  }
+}
