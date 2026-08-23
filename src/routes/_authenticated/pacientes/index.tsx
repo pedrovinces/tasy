@@ -56,9 +56,9 @@ export const Route = createFileRoute("/_authenticated/pacientes/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(pacientesQuery),
   head: () => ({
     meta: [
-      { title: "Pacientes — Contingência UTI" },
+      { title: "Pacientes — Contingência CSV" },
       { name: "description", content: "Pacientes ativos da UTI em contingência." },
-      { property: "og:title", content: "Pacientes — Contingência UTI" },
+      { property: "og:title", content: "Pacientes — Contingência CSV" },
       { property: "og:description", content: "Pacientes ativos da UTI em contingência." },
     ],
   }),

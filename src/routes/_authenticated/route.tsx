@@ -40,7 +40,7 @@ function LayoutAutenticado() {
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <div className="flex items-center gap-3">
             <Link to="/pacientes" className="text-base font-semibold text-foreground">
-              Contingência UTI
+              Contingência CSV
             </Link>
             {setor && (
               <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">

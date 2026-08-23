@@ -26,9 +26,9 @@ export const Route = createFileRoute("/_authenticated/pacientes/$pacienteId/evol
     context.queryClient.ensureQueryData(pacienteQuery(params.pacienteId)),
   head: () => ({
     meta: [
-      { title: "Nova evolução — Contingência UTI" },
+      { title: "Nova evolução — Contingência CSV" },
       { name: "description", content: "Registro de evolução clínica em contingência." },
-      { property: "og:title", content: "Nova evolução — Contingência UTI" },
+      { property: "og:title", content: "Nova evolução — Contingência CSV" },
       { property: "og:description", content: "Registro de evolução clínica em contingência." },
     ],
   }),

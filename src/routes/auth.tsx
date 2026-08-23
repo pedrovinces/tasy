@@ -16,12 +16,12 @@ const DOMINIO_INTERNO = "saovicente.local";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Acesso — Contingência UTI" },
+      { title: "Acesso — Contingência CSV" },
       {
         name: "description",
         content: "Acesso da equipe da UTI ao sistema de contingência de evoluções e receitas.",
       },
-      { property: "og:title", content: "Acesso — Contingência UTI" },
+      { property: "og:title", content: "Acesso — Contingência CSV" },
       {
         property: "og:description",
         content: "Acesso da equipe da UTI ao sistema de contingência de evoluções e receitas.",
@@ -68,7 +68,7 @@ function AuthPage() {
       />
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl">Contingência UTI</CardTitle>
+          <CardTitle className="text-xl">Contingência CSV</CardTitle>
           <CardDescription>
             Registro de evoluções e receitas durante a indisponibilidade do prontuário eletrônico.
           </CardDescription>

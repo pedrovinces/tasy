@@ -15,9 +15,9 @@ import {
 export const Route = createFileRoute("/_authenticated/imprimir/receita/$receitaId")({
   head: () => ({
     meta: [
-      { title: "Impressão de receita — Contingência UTI" },
+      { title: "Impressão de receita — Contingência CSV" },
       { name: "description", content: "Folha de receita para impressão." },
-      { property: "og:title", content: "Impressão de receita — Contingência UTI" },
+      { property: "og:title", content: "Impressão de receita — Contingência CSV" },
       { property: "og:description", content: "Folha de receita para impressão." },
     ],
   }),
