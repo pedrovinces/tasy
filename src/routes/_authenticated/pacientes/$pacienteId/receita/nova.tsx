@@ -27,9 +27,9 @@ export const Route = createFileRoute("/_authenticated/pacientes/$pacienteId/rece
     context.queryClient.ensureQueryData(pacienteQuery(params.pacienteId)),
   head: () => ({
     meta: [
-      { title: "Nova receita — Contingência UTI" },
+      { title: "Nova receita — Contingência CSV" },
       { name: "description", content: "Registro de receita em contingência." },
-      { property: "og:title", content: "Nova receita — Contingência UTI" },
+      { property: "og:title", content: "Nova receita — Contingência CSV" },
       { property: "og:description", content: "Registro de receita em contingência." },
     ],
   }),

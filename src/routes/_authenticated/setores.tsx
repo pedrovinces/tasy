@@ -6,9 +6,9 @@ import { SETORES, definirSetorSelecionado, type Setor } from "@/lib/setores";
 export const Route = createFileRoute("/_authenticated/setores")({
   head: () => ({
     meta: [
-      { title: "Setores — Contingência UTI" },
+      { title: "Setores — Contingência CSV" },
       { name: "description", content: "Escolha do setor de trabalho na contingência." },
-      { property: "og:title", content: "Setores — Contingência UTI" },
+      { property: "og:title", content: "Setores — Contingência CSV" },
       { property: "og:description", content: "Escolha do setor de trabalho na contingência." },
     ],
   }),

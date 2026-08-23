@@ -6,13 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Contingência UTI — Evoluções e Receitas" },
+      { title: "Contingência CSV — Evoluções e Receitas" },
       {
         name: "description",
         content:
           "Registro e impressão de evoluções clínicas e receitas da UTI durante a contingência do prontuário eletrônico.",
       },
-      { property: "og:title", content: "Contingência UTI — Evoluções e Receitas" },
+      { property: "og:title", content: "Contingência CSV — Evoluções e Receitas" },
       {
         property: "og:description",
         content:

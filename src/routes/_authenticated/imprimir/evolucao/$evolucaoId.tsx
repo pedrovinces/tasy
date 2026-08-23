@@ -15,9 +15,9 @@ import {
 export const Route = createFileRoute("/_authenticated/imprimir/evolucao/$evolucaoId")({
   head: () => ({
     meta: [
-      { title: "Impressão de evolução — Contingência UTI" },
+      { title: "Impressão de evolução — Contingência CSV" },
       { name: "description", content: "Folha de evolução multiprofissional para impressão." },
-      { property: "og:title", content: "Impressão de evolução — Contingência UTI" },
+      { property: "og:title", content: "Impressão de evolução — Contingência CSV" },
       {
         property: "og:description",
         content: "Folha de evolução multiprofissional para impressão.",

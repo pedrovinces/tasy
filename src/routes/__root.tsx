@@ -77,13 +77,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Contingência UTI" },
+      { title: "Contingência CSV" },
       {
         name: "description",
         content:
           "Sistema de contingência da UTI para registro e impressão de evoluções e receitas durante a indisponibilidade do prontuário eletrônico.",
       },
-      { property: "og:title", content: "Contingência UTI" },
+      { property: "og:title", content: "Contingência CSV" },
       {
         property: "og:description",
         content:
