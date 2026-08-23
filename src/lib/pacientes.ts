@@ -6,6 +6,7 @@
 // políticas de RLS no banco. Com o app publicado como site estático não há
 // servidor: o cliente Supabase do navegador envia o mesmo token e o RLS
 // aplica exatamente as mesmas regras.
+import type { PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,19 @@ import { pacienteSchema, type Paciente, type PacienteInput } from "./schemas";
 import { SETORES } from "./setores";
 
 const idSchema = z.string().uuid();
+
+// A tela mostra uma mensagem curta ao usuário; o motivo real (código HTTP,
+// texto do PostgREST, sessão expirada) só aparece no console. Nunca registra
+// dado de paciente: o que vai para o log é o erro do Supabase, não a linha.
+function falha(operacao: string, erro: PostgrestError, mensagem: string): Error {
+  console.error(`[pacientes] ${operacao} falhou`, {
+    code: erro.code,
+    message: erro.message,
+    details: erro.details,
+    hint: erro.hint,
+  });
+  return new Error(mensagem);
+}
 
 const localSchema = z.object({
   id: idSchema,
@@ -26,7 +40,7 @@ export async function listarPacientes(): Promise<Paciente[]> {
     .select("*")
     .eq("ativo", true)
     .order("leito", { ascending: true });
-  if (error) throw new Error("Não foi possível carregar os pacientes.");
+  if (error) throw falha("listar", error, "Não foi possível carregar os pacientes.");
   return (data ?? []) as Paciente[];
 }
 
@@ -37,7 +51,7 @@ export async function obterPaciente(id: string): Promise<Paciente | null> {
     .select("*")
     .eq("id", pacienteId)
     .maybeSingle();
-  if (error) throw new Error("Não foi possível carregar o paciente.");
+  if (error) throw falha("obter", error, "Não foi possível carregar o paciente.");
   return (data ?? null) as Paciente | null;
 }
 
@@ -55,7 +69,7 @@ export async function criarPaciente(input: PacienteInput): Promise<{ id: string 
     })
     .select("id")
     .single();
-  if (error) throw new Error("Não foi possível cadastrar o paciente.");
+  if (error) throw falha("criar", error, "Não foi possível cadastrar o paciente.");
   return { id: data.id as string };
 }
 
@@ -67,7 +81,8 @@ export async function atualizarLocalPaciente(input: { id: string; leito: string;
     .from("pacientes")
     .update({ leito, setor, updated_at: new Date().toISOString() })
     .eq("id", id);
-  if (error) throw new Error("Não foi possível atualizar o local do paciente.");
+  if (error)
+    throw falha("atualizar local", error, "Não foi possível atualizar o local do paciente.");
   return { ok: true };
 }
 
@@ -78,6 +93,6 @@ export async function desativarPaciente(id: string) {
     .from("pacientes")
     .update({ ativo: false, updated_at: new Date().toISOString() })
     .eq("id", pacienteId);
-  if (error) throw new Error("Não foi possível remover o paciente da lista.");
+  if (error) throw falha("desativar", error, "Não foi possível remover o paciente da lista.");
   return { ok: true };
 }
