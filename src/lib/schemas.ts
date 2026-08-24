@@ -115,12 +115,31 @@ export const prescricaoSchema = z.object({
 
 export type PrescricaoInput = z.infer<typeof prescricaoSchema>;
 
-export const solicitacaoExamesSchema = z.object({
-  paciente_id: z.string().uuid("Paciente inválido"),
-  data_hora: z.string().min(1, "Informe a data e a hora"),
-  indicacao: z.string().trim().min(1, "Escreva a indicação clínica").max(2000, "Texto muito longo"),
-  exames: z.array(z.string().trim().min(1)).min(1, "Marque ao menos um exame").max(120),
-  outros: z.string().trim().max(1000, "Texto muito longo").optional(),
-});
+// Laboratório e imagem saem em folhas separadas, então o campo livre também é
+// separado: escrever "RM de coluna" num campo genérico faria o pedido sair na
+// folha do laboratório.
+export const solicitacaoExamesSchema = z
+  .object({
+    paciente_id: z.string().uuid("Paciente inválido"),
+    data_hora: z.string().min(1, "Informe a data e a hora"),
+    indicacao: z
+      .string()
+      .trim()
+      .min(1, "Escreva a indicação clínica")
+      .max(2000, "Texto muito longo"),
+    exames: z.array(z.string().trim().min(1)).max(120),
+    outros_laboratorio: z.string().trim().max(1000, "Texto muito longo").optional(),
+    outros_imagem: z.string().trim().max(1000, "Texto muito longo").optional(),
+  })
+  .superRefine((valor, ctx) => {
+    const temTextoLivre = Boolean(valor.outros_laboratorio?.trim() || valor.outros_imagem?.trim());
+    if (valor.exames.length === 0 && !temTextoLivre) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Marque ao menos um exame ou escreva em “outros”",
+        path: ["exames"],
+      });
+    }
+  });
 
 export type SolicitacaoExamesInput = z.infer<typeof solicitacaoExamesSchema>;

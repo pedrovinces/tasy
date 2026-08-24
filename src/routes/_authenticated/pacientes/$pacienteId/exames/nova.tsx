@@ -1,6 +1,6 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Search, X } from "lucide-react";
+import { ArrowLeft, Search, X } from "lucide-react";
 import { useMemo, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -11,7 +11,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { EXAMES_IMAGEM, EXAMES_LABORATORIAIS, EXAMES_USUAIS, type GrupoExames } from "@/lib/exames";
+import {
+  ehExameDeImagem,
+  EXAMES_IMAGEM,
+  EXAMES_LABORATORIAIS,
+  type GrupoExames,
+} from "@/lib/exames";
 import { agoraParaInput } from "@/lib/format";
 import { guardarDocumentoImpressao } from "@/lib/impressao-local";
 import { obterPaciente } from "@/lib/pacientes";
@@ -61,18 +66,42 @@ function NovaSolicitacao() {
   const [dataHora, setDataHora] = useState(agoraParaInput());
   const [indicacao, setIndicacao] = useState("");
   const [busca, setBusca] = useState("");
-  const [outros, setOutros] = useState("");
+  const [outrosLaboratorio, setOutrosLaboratorio] = useState("");
+  const [outrosImagem, setOutrosImagem] = useState("");
   const [marcados, setMarcados] = useState<string[]>([]);
 
   const laboratoriais = useMemo(
     () =>
-      [EXAMES_USUAIS, ...EXAMES_LABORATORIAIS]
-        .map((grupo) => filtrarGrupo(grupo, busca))
-        .filter((grupo): grupo is GrupoExames => grupo !== null),
+      EXAMES_LABORATORIAIS.map((grupo) => filtrarGrupo(grupo, busca)).filter(
+        (grupo): grupo is GrupoExames => grupo !== null,
+      ),
     [busca],
   );
   const imagem = useMemo(() => filtrarGrupo(EXAMES_IMAGEM, busca), [busca]);
   const semResultado = laboratoriais.length === 0 && imagem === null;
+  // Os dois blocos ficam lado a lado em tela larga: empilhados, a lista de
+  // imagem caía depois de dezenas de itens de laboratório, longe de quem só
+  // queria pedir um raio-X.
+
+  // Laboratório e imagem viram folhas separadas, para seguirem para setores
+  // diferentes. O resumo antecipa isso: quem marca já sabe quantas folhas vão
+  // sair antes de mandar imprimir.
+  const marcadosImagem = marcados.filter(ehExameDeImagem);
+  const marcadosLaboratorio = marcados.filter((exame) => !ehExameDeImagem(exame));
+  const temLaboratorio = marcadosLaboratorio.length > 0 || Boolean(outrosLaboratorio.trim());
+  const temImagem = marcadosImagem.length > 0 || Boolean(outrosImagem.trim());
+  const folhas = (temLaboratorio ? 1 : 0) + (temImagem ? 1 : 0);
+  const resumo =
+    folhas === 0
+      ? "Nenhum exame marcado"
+      : [
+          marcadosLaboratorio.length > 0
+            ? `${marcadosLaboratorio.length} ${marcadosLaboratorio.length > 1 ? "laboratoriais" : "laboratorial"}`
+            : null,
+          marcadosImagem.length > 0 ? `${marcadosImagem.length} de imagem` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ") + ` — ${folhas} folha${folhas > 1 ? "s" : ""}`;
 
   if (!paciente) return <NaoEncontrado />;
 
@@ -96,7 +125,8 @@ function NovaSolicitacao() {
       data_hora: instante.toISOString(),
       indicacao,
       exames: marcados,
-      outros,
+      outros_laboratorio: outrosLaboratorio,
+      outros_imagem: outrosImagem,
     });
     if (!resultado.success) {
       toast.error(resultado.error.issues[0]?.message ?? "Verifique os campos.");
@@ -109,7 +139,10 @@ function NovaSolicitacao() {
         data_hora: resultado.data.data_hora,
         indicacao: resultado.data.indicacao,
         exames: resultado.data.exames,
-        outros: resultado.data.outros?.trim() ? resultado.data.outros : null,
+        outros_laboratorio: resultado.data.outros_laboratorio?.trim()
+          ? resultado.data.outros_laboratorio
+          : null,
+        outros_imagem: resultado.data.outros_imagem?.trim() ? resultado.data.outros_imagem : null,
       });
       toast.success("Solicitação pronta. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/exames/$solicitacaoId", params: { solicitacaoId: id } });
@@ -123,7 +156,7 @@ function NovaSolicitacao() {
     return (
       <fieldset key={grupo.titulo} className="space-y-2">
         <legend className="text-sm font-semibold text-foreground">{grupo.titulo}</legend>
-        <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
+        <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-1">
           {grupo.itens.map((exame) => (
             <label
               key={exame}
@@ -144,11 +177,19 @@ function NovaSolicitacao() {
   return (
     <div className="mx-auto max-w-3xl">
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Solicitação de exames</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Paciente do leito {paciente.leito} · {paciente.setor}
-          </p>
+        <CardHeader className="flex flex-row items-start gap-4">
+          <Button asChild variant="outline" size="icon" className="shrink-0">
+            <Link to="/pacientes/$pacienteId" params={{ pacienteId }}>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Voltar para a ficha do paciente</span>
+            </Link>
+          </Button>
+          <div className="space-y-1.5">
+            <CardTitle className="text-xl">Solicitação de exames</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Paciente do leito {paciente.leito} · {paciente.setor}
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={salvar} className="space-y-5">
@@ -181,18 +222,14 @@ function NovaSolicitacao() {
                 qualquer ponto da página, sem voltar ao fim do formulário. */}
             <div className="sticky top-2 z-10 rounded-md border bg-card p-3 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-sm font-semibold text-foreground">
-                  {marcados.length === 0
-                    ? "Nenhum exame marcado"
-                    : `${marcados.length} exame${marcados.length > 1 ? "s" : ""} marcado${marcados.length > 1 ? "s" : ""}`}
-                </span>
+                <span className="text-sm font-semibold text-foreground">{resumo}</span>
                 <div className="flex items-center gap-2">
                   {marcados.length > 0 && (
                     <Button type="button" size="sm" variant="ghost" onClick={() => setMarcados([])}>
                       Limpar
                     </Button>
                   )}
-                  <Button type="submit" size="sm" disabled={marcados.length === 0}>
+                  <Button type="submit" size="sm" disabled={folhas === 0}>
                     Imprimir solicitação
                   </Button>
                 </div>
@@ -235,13 +272,24 @@ function NovaSolicitacao() {
                 Nenhum exame encontrado. Use o campo “Outros exames” abaixo.
               </p>
             ) : (
-              <div className="space-y-5">
+              <div className="grid gap-6 lg:grid-cols-[3fr_2fr] lg:items-start">
                 {laboratoriais.length > 0 && (
                   <section className="space-y-4">
                     <h2 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                       Laboratoriais
                     </h2>
                     {laboratoriais.map(renderizarGrupo)}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="outros-laboratorio">Outros exames laboratoriais</Label>
+                      <Textarea
+                        id="outros-laboratorio"
+                        rows={2}
+                        maxLength={1000}
+                        value={outrosLaboratorio}
+                        onChange={(e) => setOutrosLaboratorio(e.target.value)}
+                        placeholder="O que não estiver na lista acima."
+                      />
+                    </div>
                   </section>
                 )}
                 {imagem && (
@@ -250,22 +298,21 @@ function NovaSolicitacao() {
                       Imagem
                     </h2>
                     {renderizarGrupo(imagem)}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="outros-imagem">Outros exames de imagem</Label>
+                      <Textarea
+                        id="outros-imagem"
+                        rows={2}
+                        maxLength={1000}
+                        value={outrosImagem}
+                        onChange={(e) => setOutrosImagem(e.target.value)}
+                        placeholder="O que não estiver na lista acima."
+                      />
+                    </div>
                   </section>
                 )}
               </div>
             )}
-
-            <div className="space-y-1.5">
-              <Label htmlFor="outros">Outros exames</Label>
-              <Textarea
-                id="outros"
-                rows={2}
-                maxLength={1000}
-                value={outros}
-                onChange={(e) => setOutros(e.target.value)}
-                placeholder="O que não estiver na lista acima."
-              />
-            </div>
 
             <div className="flex justify-end gap-2">
               <Button asChild variant="outline" type="button">
@@ -273,7 +320,7 @@ function NovaSolicitacao() {
                   Cancelar
                 </Link>
               </Button>
-              <Button type="submit" disabled={marcados.length === 0}>
+              <Button type="submit" disabled={folhas === 0}>
                 Imprimir solicitação
               </Button>
             </div>

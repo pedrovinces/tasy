@@ -65,8 +65,23 @@ function ImprimirSolicitacao() {
   if (!documento || documento.tipo !== "solicitacao") return <NaoEncontrado />;
   const { paciente } = documento;
 
+  // Laboratório e imagem vão para setores diferentes, então saem em folhas
+  // separadas — cada uma com timbrado, identificação e indicação próprios,
+  // para valer sozinha. Uma única ação de impressão gera as duas.
   const imagem = documento.exames.filter(ehExameDeImagem);
   const laboratoriais = documento.exames.filter((exame) => !ehExameDeImagem(exame));
+  const folhas = [
+    {
+      titulo: "Solicitação de Exames Laboratoriais",
+      exames: laboratoriais,
+      outros: documento.outros_laboratorio,
+    },
+    {
+      titulo: "Solicitação de Exames de Imagem",
+      exames: imagem,
+      outros: documento.outros_imagem,
+    },
+  ].filter((folha) => folha.exames.length > 0 || folha.outros);
 
   return (
     <div>
@@ -83,45 +98,38 @@ function ImprimirSolicitacao() {
         </Button>
       </div>
 
-      <FolhaA4
-        paciente={paciente}
-        titulo="Solicitação de Exames"
-        dataHora={formatarDataHora(documento.data_hora)}
-      >
-        <p className="exames-indicacao">
-          <strong>Indicação: </strong>
-          {documento.indicacao}
-        </p>
+      {folhas.map((folha, indice) => (
+        <div
+          key={folha.titulo}
+          className={indice < folhas.length - 1 ? "quebra-de-pagina" : undefined}
+        >
+          <FolhaA4
+            paciente={paciente}
+            titulo={folha.titulo}
+            dataHora={formatarDataHora(documento.data_hora)}
+          >
+            <p className="exames-indicacao">
+              <strong>Indicação: </strong>
+              {documento.indicacao}
+            </p>
 
-        {laboratoriais.length > 0 && (
-          <section className="exames-grupo">
-            <h2 className="exames-grupo-titulo">Exames laboratoriais</h2>
-            <ul className="exames-lista">
-              {laboratoriais.map((exame) => (
-                <li key={exame}>• {exame}</li>
-              ))}
-            </ul>
-          </section>
-        )}
+            <section className="exames-grupo">
+              <ul className="exames-lista">
+                {folha.exames.map((exame) => (
+                  <li key={exame}>• {exame}</li>
+                ))}
+              </ul>
+            </section>
 
-        {imagem.length > 0 && (
-          <section className="exames-grupo">
-            <h2 className="exames-grupo-titulo">Exames de imagem</h2>
-            <ul className="exames-lista">
-              {imagem.map((exame) => (
-                <li key={exame}>• {exame}</li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {documento.outros && (
-          <section className="exames-grupo">
-            <h2 className="exames-grupo-titulo">Outros</h2>
-            <p>{documento.outros}</p>
-          </section>
-        )}
-      </FolhaA4>
+            {folha.outros && (
+              <section className="exames-grupo">
+                <h2 className="exames-grupo-titulo">Outros</h2>
+                <p>{folha.outros}</p>
+              </section>
+            )}
+          </FolhaA4>
+        </div>
+      ))}
     </div>
   );
 }

@@ -402,6 +402,18 @@
   margin: 0 0 1.2mm;
 }
 
+/* Documentos que saem em mais de uma folha ---------------------------------- */
+
+/*
+ * Solicitação com exames de laboratório e de imagem sai em duas folhas, para
+ * seguirem para setores diferentes. Cada folha já ocupa a página inteira; a
+ * quebra explícita garante que a seguinte comece em papel novo.
+ */
+.quebra-de-pagina {
+  break-after: page;
+  page-break-after: always;
+}
+
 /* Impressão ---------------------------------------------------------------- */
 
 @page {

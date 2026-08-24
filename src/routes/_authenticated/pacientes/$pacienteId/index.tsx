@@ -28,6 +28,11 @@ import { calcularIdade, formatarData } from "@/lib/format";
 import { atualizarLocalPaciente, obterPaciente } from "@/lib/pacientes";
 import { SETORES } from "@/lib/setores";
 
+// Cartão de ação: alvo grande para o dedo, ícone acima do rótulo — o mesmo
+// desenho da escolha de setor.
+const ACAO =
+  "flex flex-col items-center justify-center gap-2 rounded-lg border bg-card px-4 py-7 text-center transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
 const pacienteQuery = (id: string) =>
   queryOptions({
     queryKey: ["paciente", id],
@@ -91,7 +96,7 @@ function FichaPaciente() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0">
+        <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 pb-3">
           <div className="flex items-start gap-3">
             <Button asChild variant="outline" size="icon" className="shrink-0">
               <Link to="/pacientes">
@@ -152,67 +157,71 @@ function FichaPaciente() {
             </DialogContent>
           </Dialog>
         </CardHeader>
-        <CardContent>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
-            <div>
-              <dt className="text-muted-foreground">Filiação</dt>
-              <dd className="font-medium text-foreground">{paciente.filiacao}</dd>
-            </div>
-            <div>
+        <CardContent className="pt-0">
+          {/* Leito e setor já aparecem sob o nome: repeti-los aqui só fazia o
+              cartão crescer. Sobram os dados que não estão em nenhum outro
+              lugar da tela. */}
+          <dl className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
+            <div className="flex items-baseline gap-1.5">
               <dt className="text-muted-foreground">Nascimento</dt>
               <dd className="font-medium text-foreground">
                 {formatarData(paciente.data_nascimento)}
               </dd>
             </div>
-            <div>
+            <div className="flex items-baseline gap-1.5">
               <dt className="text-muted-foreground">Idade</dt>
               <dd className="font-medium text-foreground">
                 {calcularIdade(paciente.data_nascimento)}
               </dd>
             </div>
-            <div>
+            <div className="flex items-baseline gap-1.5">
               <dt className="text-muted-foreground">Sexo</dt>
               <dd className="font-medium text-foreground">{paciente.sexo}</dd>
             </div>
-            <div>
-              <dt className="text-muted-foreground">Leito</dt>
-              <dd className="font-medium text-foreground">{paciente.leito}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Setor</dt>
-              <dd className="font-medium text-foreground">{paciente.setor}</dd>
+            <div className="flex items-baseline gap-1.5">
+              <dt className="text-muted-foreground">Filiação</dt>
+              <dd className="font-medium text-foreground">{paciente.filiacao}</dd>
             </div>
           </dl>
         </CardContent>
       </Card>
 
-      {/* Os quatro documentos que o sistema gera, na ordem de uso à beira do
-          leito. Empilham em telas estreitas. */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Button asChild size="lg">
-          <Link to="/pacientes/$pacienteId/evolucao/nova" params={{ pacienteId: paciente.id }}>
-            <ScrollText className="mr-2 h-4 w-4" />
-            Nova evolução
-          </Link>
-        </Button>
-        <Button asChild size="lg">
-          <Link to="/pacientes/$pacienteId/prescricao/nova" params={{ pacienteId: paciente.id }}>
-            <ClipboardList className="mr-2 h-4 w-4" />
-            Nova prescrição
-          </Link>
-        </Button>
-        <Button asChild size="lg" variant="outline">
-          <Link to="/pacientes/$pacienteId/receita/nova" params={{ pacienteId: paciente.id }}>
-            <FileText className="mr-2 h-4 w-4" />
-            Nova receita
-          </Link>
-        </Button>
-        <Button asChild size="lg" variant="outline">
-          <Link to="/pacientes/$pacienteId/exames/nova" params={{ pacienteId: paciente.id }}>
-            <FlaskConical className="mr-2 h-4 w-4" />
-            Solicitar exames
-          </Link>
-        </Button>
+      {/* Os quatro documentos são pares entre si — mesmo peso visual, mesmo
+          desenho dos cartões da escolha de setor, para a tela toda falar a
+          mesma língua. Em telas estreitas viram duas colunas. */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Link
+          to="/pacientes/$pacienteId/evolucao/nova"
+          params={{ pacienteId: paciente.id }}
+          className={ACAO}
+        >
+          <ScrollText className="h-7 w-7 text-primary" />
+          <span className="text-sm font-semibold text-foreground">Nova evolução</span>
+        </Link>
+        <Link
+          to="/pacientes/$pacienteId/prescricao/nova"
+          params={{ pacienteId: paciente.id }}
+          className={ACAO}
+        >
+          <ClipboardList className="h-7 w-7 text-primary" />
+          <span className="text-sm font-semibold text-foreground">Nova prescrição</span>
+        </Link>
+        <Link
+          to="/pacientes/$pacienteId/receita/nova"
+          params={{ pacienteId: paciente.id }}
+          className={ACAO}
+        >
+          <FileText className="h-7 w-7 text-primary" />
+          <span className="text-sm font-semibold text-foreground">Nova receita</span>
+        </Link>
+        <Link
+          to="/pacientes/$pacienteId/exames/nova"
+          params={{ pacienteId: paciente.id }}
+          className={ACAO}
+        >
+          <FlaskConical className="h-7 w-7 text-primary" />
+          <span className="text-sm font-semibold text-foreground">Solicitar exames</span>
+        </Link>
       </div>
 
       <p className="text-sm text-muted-foreground">

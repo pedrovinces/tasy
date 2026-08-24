@@ -1,51 +1,64 @@
 // Catálogo de exames da solicitação.
 //
 // Fonte dos laboratoriais: o "Registro de controle interno" do Richet, que a
-// unidade já usa em papel. Os rótulos são únicos em todo o catálogo — a
-// seleção é feita pelo próprio texto, que é também o que sai impresso.
+// unidade já usa em papel — adaptado do nível de analito para o nível de
+// pedido. O laboratório controla hemácias, hemoglobina e hematócrito em linhas
+// separadas; o médico pede "hemograma completo", e é assim que a lista está.
 //
-// Trocar, acrescentar ou remover exame é mexer só neste arquivo: nem o
-// formulário nem a folha impressa conhecem a lista.
+// Pelo mesmo motivo, exames que sempre saem completos aparecem como item único
+// (hemograma, EAS), enquanto painéis que são pedidos em partes aparecem
+// individualizados (TAP e PTT, TGO e TGP e GGT).
+//
+// Os rótulos são únicos em todo o catálogo — a seleção é feita pelo próprio
+// texto, que é também o que sai impresso. Trocar, acrescentar ou remover exame
+// é mexer só neste arquivo: nem o formulário nem a folha impressa conhecem a
+// lista.
 
 export interface GrupoExames {
   titulo: string;
   itens: readonly string[];
 }
 
-// Pedidos de rotina, em um clique. São rótulos próprios, não expansões: o que
-// vai impresso é "Hemograma completo", e não os catorze analitos do quadro.
-export const EXAMES_USUAIS: GrupoExames = {
-  titulo: "Pedidos usuais",
-  itens: [
-    "Hemograma completo",
-    "Coagulograma completo",
-    "Função renal (ureia e creatinina)",
-    "Hepatograma",
-    "Eletrólitos (sódio, potássio, cálcio e magnésio)",
-    "Marcadores cardíacos (troponina e CK-MB)",
-    "EAS (urina tipo I)",
-    "Gasometria arterial",
-  ],
-} as const;
-
 export const EXAMES_LABORATORIAIS: readonly GrupoExames[] = [
   {
-    titulo: "Eritrograma",
-    itens: ["Hemácias", "Hemoglobina", "Hematócrito", "Plaquetas"],
+    titulo: "Hematologia e coagulação",
+    itens: ["Hemograma completo", "TAP", "PTT", "Fibrinogênio", "D-dímero"],
   },
   {
-    titulo: "Leucometria",
+    titulo: "Bioquímica",
     itens: [
-      "Leucócitos totais",
-      "Basófilos",
-      "Eosinófilos",
-      "Mielócitos",
-      "Metamielócitos",
-      "Bastonetes",
-      "Segmentados",
-      "Linfócitos",
-      "Monócitos",
-      "Leucoblastos",
+      "Ureia",
+      "Creatinina",
+      "Sódio",
+      "Potássio",
+      "Cálcio",
+      "Magnésio",
+      "Fósforo",
+      "Cloro",
+      "Glicose",
+      "Gasometria arterial",
+      "Lactato",
+      "PCR",
+      "Albumina",
+      "Proteínas totais",
+      "Ácido úrico",
+      "Bilirrubina total",
+      "Bilirrubina direta",
+      "Bilirrubina indireta",
+      "TGO/AST",
+      "TGP/ALT",
+      "GGT",
+      "Fosfatase alcalina",
+      "Amilase",
+      "Lipase",
+      "CPK",
+      "CK-MB",
+      "LDH",
+      "Ferro",
+      "Colesterol total",
+      "HDL",
+      "LDL",
+      "Triglicerídeos",
     ],
   },
   {
@@ -53,71 +66,8 @@ export const EXAMES_LABORATORIAIS: readonly GrupoExames[] = [
     itens: ["Beta-HCG", "Pró-BNP", "CK-massa", "Mioglobina", "Troponina", "TSH", "T4 livre"],
   },
   {
-    titulo: "Coagulograma",
-    itens: ["TAP (INR)", "TAP (segundos)", "TAP (%)", "PTT (segundos)", "PTT (%)", "Fibrinogênio"],
-  },
-  {
-    titulo: "Urinálise — macroscopia",
-    itens: [
-      "pH urinário",
-      "Densidade urinária",
-      "Proteína na urina",
-      "Glicose na urina",
-      "Corpos cetônicos",
-      "Bilirrubina na urina",
-      "Hemoglobina na urina",
-      "Nitrito",
-      "Esterase leucocitária",
-      "Urobilinogênio",
-    ],
-  },
-  {
-    titulo: "Urinálise — microscopia",
-    itens: [
-      "Cilindros",
-      "Cristais",
-      "Bactérias na urina",
-      "Leveduras",
-      "Leucócitos na urina",
-      "Hemácias na urina",
-    ],
-  },
-  {
-    titulo: "Bioquímica",
-    itens: [
-      "Albumina",
-      "Ácido úrico",
-      "Amilase",
-      "Lipase",
-      "Bilirrubina direta",
-      "Bilirrubina indireta",
-      "Bilirrubina total",
-      "Cálcio",
-      "Cloro",
-      "Sódio",
-      "Potássio",
-      "Magnésio",
-      "Fósforo",
-      "Ferro",
-      "Colesterol total",
-      "HDL",
-      "LDL",
-      "Triglicerídeos",
-      "Glicose",
-      "Ureia",
-      "Creatinina",
-      "Proteínas totais",
-      "TGO/AST",
-      "TGP/ALT",
-      "GGT",
-      "Fosfatase alcalina",
-      "CPK",
-      "CK-MB",
-      "LDH",
-      "PCR",
-      "D-dímero",
-      "Lactato",
-    ],
+    titulo: "Urina",
+    itens: ["EAS — Elementos Anormais e Sedimentoscopia"],
   },
   {
     titulo: "Microbiologia e testes rápidos",
