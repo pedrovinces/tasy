@@ -1,10 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Printer } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { FolhaA4 } from "@/components/impressao/FolhaA4";
-import { Button } from "@/components/ui/button";
+import { AcoesImpressao } from "@/components/impressao/AcoesImpressao";
 import { formatarDataHora } from "@/lib/format";
 import {
   descartarDocumentoImpressao,
@@ -29,9 +28,7 @@ export const Route = createFileRoute("/_authenticated/imprimir/receita/$receitaI
 function ImprimirReceita() {
   const { receitaId } = Route.useParams();
   // O documento vive apenas nesta sessão do navegador — nada vai para a nuvem.
-  const [documento] = useState<DocumentoImpressao | null>(() =>
-    lerDocumentoImpressao(receitaId),
-  );
+  const [documento] = useState<DocumentoImpressao | null>(() => lerDocumentoImpressao(receitaId));
 
   // Ao sair da folha, o documento é descartado: não fica salvo em lugar nenhum.
   useEffect(() => () => descartarDocumentoImpressao(receitaId), [receitaId]);
@@ -66,18 +63,7 @@ function ImprimirReceita() {
 
   return (
     <div>
-      <div className="acoes-impressao mb-4 flex items-center justify-between">
-        <Button asChild variant="outline">
-          <Link to="/pacientes/$pacienteId" params={{ pacienteId: paciente.id }}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Link>
-        </Button>
-        <Button onClick={() => window.print()}>
-          <Printer className="mr-2 h-4 w-4" />
-          Imprimir
-        </Button>
-      </div>
+      <AcoesImpressao pacienteId={paciente.id} documento="A receita" />
 
       <FolhaA4
         paciente={paciente}
@@ -106,9 +92,9 @@ function ImprimirReceita() {
             </tbody>
           </table>
         ) : (
-          (documento.texto_livre ?? "").split("\n").map((paragrafo, indice) => (
-            <p key={indice}>{paragrafo}</p>
-          ))
+          (documento.texto_livre ?? "")
+            .split("\n")
+            .map((paragrafo, indice) => <p key={indice}>{paragrafo}</p>)
         )}
       </FolhaA4>
     </div>

@@ -95,7 +95,10 @@ function FichaPaciente() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      {/* Fundo levemente mais escuro que os cartões de ação abaixo: os dois
+          blocos são coisas diferentes — um informa, os outros levam a algum
+          lugar — e antes tinham exatamente a mesma cor. */}
+      <Card className="bg-muted/60">
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 pb-3">
           <div className="flex items-start gap-3">
             <Button asChild variant="outline" size="icon" className="shrink-0">
@@ -225,7 +228,7 @@ function FichaPaciente() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Nenhum destes documentos fica salvo: após o registro, ele abre na folha de impressão e é
+        Nenhum destes documentos fica salvo: cada um abre direto na folha de impressão e é
         descartado ao sair dela.
       </p>
     </div>
