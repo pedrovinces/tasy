@@ -6,15 +6,18 @@ import {
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
-import { ArrowLeftRight, LogOut } from "lucide-react";
-import { useMemo } from "react";
+import { AlertTriangle, ArrowLeftRight, LogOut } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { dentroDoAviso, sistemaEncerrado, tempoRestante } from "@/lib/encerramento";
 import { limparSetorSelecionado, obterSetorSelecionado } from "@/lib/setores";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
+    // Antes de qualquer coisa: passado o prazo, nem a sessão vale mais.
+    if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
     return { user: data.user };
@@ -27,6 +30,15 @@ function LayoutAutenticado() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   // Relê o setor a cada navegação para refletir a escolha feita em /setores.
   const setor = useMemo(() => obterSetorSelecionado(), [pathname]);
+
+  // Documento em preparo não é salvo em lugar nenhum: quem está escrevendo
+  // precisa ver o prazo se aproximando. O minuto a minuto vem de um relógio
+  // próprio — sem ele a faixa só mudaria ao navegar.
+  const [agora, setAgora] = useState(() => new Date());
+  useEffect(() => {
+    const id = window.setInterval(() => setAgora(new Date()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   async function sair() {
     limparSetorSelecionado();
@@ -62,6 +74,18 @@ function LayoutAutenticado() {
           </div>
         </div>
       </header>
+      {dentroDoAviso(agora) && (
+        <div className="app-chrome border-b border-destructive/30 bg-destructive/10">
+          <div className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-2 text-sm text-foreground">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
+            <span>
+              O sistema encerra em <strong>{tempoRestante(agora)}</strong>. Imprima o que estiver
+              pendente: depois disso o acesso é bloqueado e os pacientes são apagados.
+            </span>
+          </div>
+        </div>
+      )}
+
       <main className="mx-auto max-w-5xl px-4 py-6">
         <Outlet />
       </main>

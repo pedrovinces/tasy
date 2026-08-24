@@ -129,6 +129,36 @@ Supabase, em **Authentication → Providers**, se o autocadastro (`Enable email 
 **desligado** — caso contrário alguém poderia criar a própria conta e alcançar os dados dos
 pacientes. As contas devem ser criadas apenas pelo painel do Supabase.
 
+## Encerramento programado
+
+A contingência tem prazo. O encerramento acontece em duas camadas, porque uma
+sozinha não basta:
+
+| Quando           | O quê                              | Onde                        |
+| ---------------- | ---------------------------------- | --------------------------- |
+| 29/08/2026 00h30 | Tela deixa de abrir                | `src/lib/encerramento.ts`   |
+| 29/08/2026 00h30 | Banco revoga o acesso da aplicação | `supabase/encerramento.sql` |
+| 29/08/2026 02h30 | Pacientes apagados                 | `supabase/encerramento.sql` |
+
+**A tela** é bloqueio de cortesia: o site é estático e a verificação usa o
+relógio do computador de quem acessa, então atrasar o relógio a contorna. Nas
+duas horas anteriores ao prazo, uma faixa avisa quanto tempo resta, para
+ninguém ficar escrevendo um documento que não vai conseguir imprimir.
+
+**O banco** é o que encerra de fato. Rode `supabase/encerramento.sql` no SQL
+Editor do Supabase (Lovable → Cloud → abrir o Supabase) **antes do prazo**; ele
+agenda as duas tarefas com `pg_cron`. Os horários lá estão em UTC, que é o fuso
+do agendador: 03:30 e 05:30.
+
+Para mudar a data, altere `ENCERRAMENTO` em `src/lib/encerramento.ts`, publique,
+e reagende as tarefas (o próprio arquivo SQL traz os comandos de desfazer).
+
+O `delete` remove as linhas — nem o sistema nem a API as devolvem depois. Os
+backups automáticos do Supabase, porém, podem guardar uma cópia dentro da janela
+de retenção do plano; se a exigência for não restar registro em lugar nenhum, o
+passo final é excluir o projeto do Supabase. Evoluções, prescrições, receitas e
+solicitações não entram nessa conta: nunca chegaram ao banco.
+
 ## Development
 
 Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).

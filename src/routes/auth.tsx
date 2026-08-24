@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { sistemaEncerrado } from "@/lib/encerramento";
 
 // Conta universal da unidade. Como toda a equipe entra pela mesma conta, a
 // tela pede só a senha: o usuário é fixo aqui e vira o e-mail sintético que o
@@ -19,6 +20,10 @@ const DOMINIO_INTERNO = "saovicente.local";
 const EMAIL_ACESSO = `${USUARIO_ACESSO}@${DOMINIO_INTERNO}`;
 
 export const Route = createFileRoute("/auth")({
+  // Não faz sentido oferecer login que não vai levar a lugar nenhum.
+  beforeLoad: () => {
+    if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
+  },
   head: () => ({
     meta: [
       { title: "Acesso — Contingência CSV" },
