@@ -1,6 +1,6 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -93,11 +93,19 @@ function NovaPrescricao() {
   return (
     <div className="mx-auto max-w-3xl">
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Nova prescrição</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Paciente do leito {paciente.leito} · {paciente.setor}
-          </p>
+        <CardHeader className="flex flex-row items-start gap-4">
+          <Button asChild variant="outline" size="icon" className="shrink-0">
+            <Link to="/pacientes/$pacienteId" params={{ pacienteId }}>
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Voltar para a ficha do paciente</span>
+            </Link>
+          </Button>
+          <div className="space-y-1.5">
+            <CardTitle className="text-xl">Nova prescrição</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Paciente do leito {paciente.leito} · {paciente.setor}
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={salvar} className="space-y-4">

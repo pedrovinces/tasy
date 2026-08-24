@@ -36,7 +36,8 @@ export type DocumentoImpressao =
       data_hora: string;
       indicacao: string;
       exames: string[];
-      outros: string | null;
+      outros_laboratorio: string | null;
+      outros_imagem: string | null;
     };
 
 const PREFIXO = "contingencia.impressao.";
