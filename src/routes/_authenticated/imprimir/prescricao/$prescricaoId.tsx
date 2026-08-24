@@ -1,10 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Printer } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { FolhaPrescricao } from "@/components/impressao/FolhaPrescricao";
-import { Button } from "@/components/ui/button";
+import { AcoesImpressao } from "@/components/impressao/AcoesImpressao";
 import {
   descartarDocumentoImpressao,
   lerDocumentoImpressao,
@@ -73,18 +72,7 @@ function ImprimirPrescricao() {
        */}
       <style>{"@page { size: A4 landscape; margin: 0; }"}</style>
 
-      <div className="acoes-impressao mb-4 flex items-center justify-between">
-        <Button asChild variant="outline">
-          <Link to="/pacientes/$pacienteId" params={{ pacienteId: paciente.id }}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Link>
-        </Button>
-        <Button onClick={() => window.print()}>
-          <Printer className="mr-2 h-4 w-4" />
-          Imprimir
-        </Button>
-      </div>
+      <AcoesImpressao pacienteId={paciente.id} documento="A prescrição" />
 
       <FolhaPrescricao
         paciente={paciente}
