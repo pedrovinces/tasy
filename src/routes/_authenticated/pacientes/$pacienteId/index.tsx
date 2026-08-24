@@ -30,6 +30,11 @@ import { SETORES } from "@/lib/setores";
 
 // Cartão de ação: alvo grande para o dedo, ícone acima do rótulo — o mesmo
 // desenho da escolha de setor.
+// Botões dentro do cartão escuro: contorno e texto claros, para não sumirem
+// no fundo nem brigar com ele.
+const BOTAO_NO_ESCURO =
+  "shrink-0 border-background/30 bg-transparent text-background hover:bg-background/15 hover:text-background";
+
 const ACAO =
   "flex flex-col items-center justify-center gap-2 rounded-lg border bg-card px-4 py-7 text-center transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -95,28 +100,31 @@ function FichaPaciente() {
 
   return (
     <div className="space-y-6">
-      {/* Fundo levemente mais escuro que os cartões de ação abaixo: os dois
-          blocos são coisas diferentes — um informa, os outros levam a algum
-          lugar — e antes tinham exatamente a mesma cor. */}
-      <Card className="bg-muted/60">
+      {/* A folha impressa identifica o paciente em faixas escuras com letra
+          branca; a tela repete isso. O bloco escuro é informação, os cartões
+          claros abaixo são ação — a diferença fica óbvia antes de ler. */}
+      <Card className="border-transparent bg-foreground text-background">
         <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 pb-3">
           <div className="flex items-start gap-3">
-            <Button asChild variant="outline" size="icon" className="shrink-0">
+            <Button asChild variant="outline" size="icon" className={BOTAO_NO_ESCURO}>
               <Link to="/pacientes">
                 <ArrowLeft className="h-4 w-4" />
                 <span className="sr-only">Voltar para a listagem</span>
               </Link>
             </Button>
             <div>
-              <CardTitle className="text-xl">{paciente.nome_completo}</CardTitle>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="text-xs font-semibold uppercase tracking-widest text-background/60">
+                Paciente
+              </p>
+              <CardTitle className="mt-0.5 text-xl">{paciente.nome_completo}</CardTitle>
+              <p className="mt-1 text-sm text-background/70">
                 Leito {paciente.leito} · {paciente.setor}
               </p>
             </div>
           </div>
           <Dialog open={editAberto} onOpenChange={setEditAberto}>
             <DialogTrigger asChild>
-              <Button variant="outline" onClick={abrirEdicao}>
+              <Button variant="outline" className={BOTAO_NO_ESCURO} onClick={abrirEdicao}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Editar local
               </Button>
@@ -166,65 +174,66 @@ function FichaPaciente() {
               lugar da tela. */}
           <dl className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
             <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">Nascimento</dt>
-              <dd className="font-medium text-foreground">
-                {formatarData(paciente.data_nascimento)}
-              </dd>
+              <dt className="text-background/70">Nascimento</dt>
+              <dd className="font-medium">{formatarData(paciente.data_nascimento)}</dd>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">Idade</dt>
-              <dd className="font-medium text-foreground">
-                {calcularIdade(paciente.data_nascimento)}
-              </dd>
+              <dt className="text-background/70">Idade</dt>
+              <dd className="font-medium">{calcularIdade(paciente.data_nascimento)}</dd>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">Sexo</dt>
-              <dd className="font-medium text-foreground">{paciente.sexo}</dd>
+              <dt className="text-background/70">Sexo</dt>
+              <dd className="font-medium">{paciente.sexo}</dd>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">Filiação</dt>
-              <dd className="font-medium text-foreground">{paciente.filiacao}</dd>
+              <dt className="text-background/70">Filiação</dt>
+              <dd className="font-medium">{paciente.filiacao}</dd>
             </div>
           </dl>
         </CardContent>
       </Card>
 
       {/* Os quatro documentos são pares entre si — mesmo peso visual, mesmo
-          desenho dos cartões da escolha de setor, para a tela toda falar a
-          mesma língua. Em telas estreitas viram duas colunas. */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Link
-          to="/pacientes/$pacienteId/evolucao/nova"
-          params={{ pacienteId: paciente.id }}
-          className={ACAO}
-        >
-          <ScrollText className="h-7 w-7 text-primary" />
-          <span className="text-sm font-semibold text-foreground">Nova evolução</span>
-        </Link>
-        <Link
-          to="/pacientes/$pacienteId/prescricao/nova"
-          params={{ pacienteId: paciente.id }}
-          className={ACAO}
-        >
-          <ClipboardList className="h-7 w-7 text-primary" />
-          <span className="text-sm font-semibold text-foreground">Nova prescrição</span>
-        </Link>
-        <Link
-          to="/pacientes/$pacienteId/receita/nova"
-          params={{ pacienteId: paciente.id }}
-          className={ACAO}
-        >
-          <FileText className="h-7 w-7 text-primary" />
-          <span className="text-sm font-semibold text-foreground">Nova receita</span>
-        </Link>
-        <Link
-          to="/pacientes/$pacienteId/exames/nova"
-          params={{ pacienteId: paciente.id }}
-          className={ACAO}
-        >
-          <FlaskConical className="h-7 w-7 text-primary" />
-          <span className="text-sm font-semibold text-foreground">Solicitar exames</span>
-        </Link>
+          desenho dos cartões da escolha de setor. O título nomeia o bloco como
+          ação, em contraste com o cartão de informação acima. */}
+      <div className="space-y-2">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Documentos
+        </h2>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <Link
+            to="/pacientes/$pacienteId/evolucao/nova"
+            params={{ pacienteId: paciente.id }}
+            className={ACAO}
+          >
+            <ScrollText className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold text-foreground">Nova evolução</span>
+          </Link>
+          <Link
+            to="/pacientes/$pacienteId/prescricao/nova"
+            params={{ pacienteId: paciente.id }}
+            className={ACAO}
+          >
+            <ClipboardList className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold text-foreground">Nova prescrição</span>
+          </Link>
+          <Link
+            to="/pacientes/$pacienteId/receita/nova"
+            params={{ pacienteId: paciente.id }}
+            className={ACAO}
+          >
+            <FileText className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold text-foreground">Nova receita</span>
+          </Link>
+          <Link
+            to="/pacientes/$pacienteId/exames/nova"
+            params={{ pacienteId: paciente.id }}
+            className={ACAO}
+          >
+            <FlaskConical className="h-7 w-7 text-primary" />
+            <span className="text-sm font-semibold text-foreground">Solicitar exames</span>
+          </Link>
+        </div>
       </div>
 
       <p className="text-sm text-muted-foreground">

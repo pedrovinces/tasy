@@ -1,5 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2, Siren } from "lucide-react";
+import {
+  Activity,
+  BedDouble,
+  Bone,
+  Building2,
+  HeartPulse,
+  Siren,
+  Stethoscope,
+  type LucideIcon,
+} from "lucide-react";
 
 import {
   SETORES_INTERNACAO,
@@ -19,6 +28,22 @@ export const Route = createFileRoute("/_authenticated/setores")({
   }),
   component: SelecaoSetor,
 });
+
+// Cada setor com o ícone do que se faz nele: leito para as unidades de
+// internação, traçado de monitor para as terapias intensivas, coração para a
+// cardiointensiva, osso para o transplante de medula. Setor sem ícone próprio
+// cai no prédio genérico.
+const ICONES: Partial<Record<Setor, LucideIcon>> = {
+  "UI I": BedDouble,
+  "UI II": BedDouble,
+  "UI III": BedDouble,
+  "UTI Geral": Activity,
+  "UTI Geral SS": Activity,
+  USI: Stethoscope,
+  UCI: HeartPulse,
+  TMO: Bone,
+  Emergência: Siren,
+};
 
 function SelecaoSetor() {
   const navigate = useNavigate();
@@ -46,17 +71,20 @@ function SelecaoSetor() {
       </button>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {SETORES_INTERNACAO.map((setor) => (
-          <button
-            key={setor}
-            type="button"
-            onClick={() => escolher(setor)}
-            className="flex flex-col items-center gap-2 rounded-lg border bg-card px-4 py-6 text-center transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Building2 className="h-6 w-6 text-primary" />
-            <span className="text-sm font-semibold text-foreground">{setor}</span>
-          </button>
-        ))}
+        {SETORES_INTERNACAO.map((setor) => {
+          const Icone = ICONES[setor] ?? Building2;
+          return (
+            <button
+              key={setor}
+              type="button"
+              onClick={() => escolher(setor)}
+              className="flex flex-col items-center gap-2 rounded-lg border bg-card px-4 py-6 text-center transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Icone className="h-6 w-6 text-primary" />
+              <span className="text-sm font-semibold text-foreground">{setor}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
