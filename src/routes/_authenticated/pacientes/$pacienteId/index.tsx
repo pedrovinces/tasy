@@ -106,71 +106,51 @@ function FichaPaciente() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Dialog open={editAberto} onOpenChange={setEditAberto}>
-              <DialogTrigger asChild>
-                <Button variant="outline" onClick={abrirEdicao}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Editar local
+          <Dialog open={editAberto} onOpenChange={setEditAberto}>
+            <DialogTrigger asChild>
+              <Button variant="outline" onClick={abrirEdicao}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Editar local
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Editar local do paciente</DialogTitle>
+                <DialogDescription>
+                  Ao trocar o setor, o paciente passa a aparecer na listagem do novo setor.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={salvarLocal} className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-leito">Leito</Label>
+                  <Input
+                    id="edit-leito"
+                    value={leito}
+                    onChange={(e) => setLeito(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Setor</Label>
+                  <Select value={setor} onValueChange={setSetor}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SETORES.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="submit" className="w-full" disabled={salvando}>
+                  {salvando ? "Salvando…" : "Salvar"}
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Editar local do paciente</DialogTitle>
-                  <DialogDescription>
-                    Ao trocar o setor, o paciente passa a aparecer na listagem do novo setor.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={salvarLocal} className="space-y-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="edit-leito">Leito</Label>
-                    <Input
-                      id="edit-leito"
-                      value={leito}
-                      onChange={(e) => setLeito(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Setor</Label>
-                    <Select value={setor} onValueChange={setSetor}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SETORES.map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {s}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={salvando}>
-                    {salvando ? "Salvando…" : "Salvar"}
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-            <Button asChild>
-              <Link
-                to="/pacientes/$pacienteId/evolucao/nova"
-                params={{ pacienteId: paciente.id }}
-              >
-                <ScrollText className="mr-2 h-4 w-4" />
-                Nova evolução
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link
-                to="/pacientes/$pacienteId/receita/nova"
-                params={{ pacienteId: paciente.id }}
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Nova receita
-              </Link>
-            </Button>
-          </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
@@ -205,6 +185,21 @@ function FichaPaciente() {
           </dl>
         </CardContent>
       </Card>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Button asChild size="lg">
+          <Link to="/pacientes/$pacienteId/evolucao/nova" params={{ pacienteId: paciente.id }}>
+            <ScrollText className="mr-2 h-4 w-4" />
+            Nova evolução
+          </Link>
+        </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link to="/pacientes/$pacienteId/receita/nova" params={{ pacienteId: paciente.id }}>
+            <FileText className="mr-2 h-4 w-4" />
+            Nova receita
+          </Link>
+        </Button>
+      </div>
 
       <p className="text-sm text-muted-foreground">
         Evoluções e receitas não ficam salvas: após o registro, o documento abre na folha de
