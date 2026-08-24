@@ -233,6 +233,15 @@
   padding: 8mm 10mm 6mm;
 }
 
+/*
+ * Invólucro de cada folha deitada. Não existe no layout: só a impressão em
+ * navegadores que ignoram `@page { size }` o materializa, para recortar a
+ * folha girada no tamanho da página.
+ */
+.folha-envelope {
+  display: contents;
+}
+
 .prescricao-cabecalho {
   display: flex;
   align-items: flex-start;
@@ -455,6 +464,55 @@
 
   .folha-paisagem {
     min-height: 201mm;
+  }
+
+  /*
+   * Saída para os navegadores que ignoram o tamanho de página pedido (WebKit):
+   * a página sai retrato e o conteúdo é girado um quarto de volta dentro dela.
+   * Basta virar o papel para ler.
+   *
+   * O giro é por folha, não pelo documento inteiro: elemento transformado é
+   * indivisível, então uma prescrição de duas folhas dentro de um invólucro só
+   * imprimiria a primeira. Cada invólucro tem o tamanho exato de uma página
+   * retrato e recorta o que sobra do giro — sem o recorte, os 297mm de largura
+   * da folha deitada empurrariam uma página lateral em branco.
+   */
+  .impressao-girada .folha-envelope {
+    display: block;
+    width: 210mm;
+    /* Um milímetro a menos que a página, pelo mesmo motivo das outras folhas:
+       arredondamento do navegador não pode gerar papel em branco. O que se
+       perde é um milímetro da margem inferior da folha deitada. */
+    height: 296mm;
+    overflow: hidden;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .impressao-girada .folha-envelope:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /*
+   * Medidas exatas, não mínimas: depois do giro a altura da folha vira a
+   * largura do papel, e uma folha mais curta que 210mm sairia deslocada. A
+   * margem de centralização também sai — dentro do invólucro ela deslocaria a
+   * origem do giro.
+   */
+  .impressao-girada .folha-envelope .folha-paisagem {
+    width: 297mm;
+    height: 210mm;
+    min-height: 0;
+    margin: 0;
+    transform: translate(210mm, 0) rotate(90deg);
+    transform-origin: top left;
+  }
+
+  /* A quebra entre folhas passa a ser do invólucro. */
+  .impressao-girada .quebra-de-pagina {
+    break-after: auto;
+    page-break-after: auto;
   }
 
   /*
