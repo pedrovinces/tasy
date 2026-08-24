@@ -8,10 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 
-// Conta universal da unidade: o usuário informado na tela é convertido em um
-// e-mail sintético interno, exigido pelo provedor de autenticação. Não existe
-// cadastro nem troca de senha pela interface.
+// Conta universal da unidade. Como toda a equipe entra pela mesma conta, a
+// tela pede só a senha: o usuário é fixo aqui e vira o e-mail sintético que o
+// provedor de autenticação exige. Não existe cadastro nem troca de senha pela
+// interface — a senha é trocada no painel do Supabase e vale na hora, sem
+// republicar o site. Ela é o único segredo do acesso: este identificador viaja
+// no pacote que o navegador baixa.
+const USUARIO_ACESSO = "admin";
 const DOMINIO_INTERNO = "saovicente.local";
+const EMAIL_ACESSO = `${USUARIO_ACESSO}@${DOMINIO_INTERNO}`;
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -33,7 +38,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -46,14 +50,13 @@ function AuthPage() {
   async function entrar(evento: FormEvent) {
     evento.preventDefault();
     setCarregando(true);
-    const emailInterno = `${usuario.trim().toLowerCase()}@${DOMINIO_INTERNO}`;
     const { error } = await supabase.auth.signInWithPassword({
-      email: emailInterno,
+      email: EMAIL_ACESSO,
       password: senha,
     });
     setCarregando(false);
     if (error) {
-      toast.error("Usuário ou senha inválidos.");
+      toast.error("Senha inválida.");
       return;
     }
     void navigate({ to: "/setores" });
@@ -76,23 +79,13 @@ function AuthPage() {
         <CardContent>
           <form onSubmit={entrar} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="usuario">Usuário</Label>
-              <Input
-                id="usuario"
-                type="text"
-                required
-                autoComplete="username"
-                value={usuario}
-                onChange={(e) => setUsuario(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="senha">Senha</Label>
+              <Label htmlFor="senha">Senha de acesso</Label>
               <Input
                 id="senha"
                 type="password"
                 required
                 autoComplete="current-password"
+                autoFocus
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
               />
