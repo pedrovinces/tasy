@@ -10,7 +10,16 @@
 // de permissões no banco, no mesmo instante — sem ela, quem tem a senha
 // alcança os dados por fora do site.
 
-// 29/08/2026 às 00h30 de Brasília (UTC-3) = 03:30 UTC.
+// Duas datas, de propósito.
+//
+// A contagem da faixa mira a meia-noite: é a hora anunciada para a equipe, a
+// que todo mundo tem na cabeça. O bloqueio real vem meia hora depois, como
+// margem para quem estiver terminando um documento quando o relógio virar.
+//
+// 29/08/2026 às 00h00 de Brasília (UTC-3) = 03:00 UTC.
+export const ENCERRAMENTO_ANUNCIADO = new Date("2026-08-29T03:00:00Z");
+
+// 29/08/2026 às 00h30 de Brasília = 03:30 UTC.
 export const ENCERRAMENTO = new Date("2026-08-29T03:30:00Z");
 
 // 29/08/2026 às 02h30 de Brasília = 05:30 UTC. Só para exibir na tela: quem
@@ -28,17 +37,22 @@ export function sistemaEncerrado(agora: Date = new Date()): boolean {
 }
 
 export function msAteEncerrar(agora: Date = new Date()): number {
-  return ENCERRAMENTO.getTime() - agora.getTime();
+  return ENCERRAMENTO_ANUNCIADO.getTime() - agora.getTime();
 }
 
+// A faixa acompanha as duas horas anteriores à hora anunciada e continua
+// visível na meia hora de margem, até o bloqueio.
 export function dentroDoAviso(agora: Date = new Date()): boolean {
-  const restante = msAteEncerrar(agora);
-  return restante > 0 && restante <= AVISO_ANTECEDENCIA_MS;
+  if (sistemaEncerrado(agora)) return false;
+  return msAteEncerrar(agora) <= AVISO_ANTECEDENCIA_MS;
 }
 
-// "3 h 20 min", "45 min", "2 min" — texto curto para caber na faixa.
-export function tempoRestante(agora: Date = new Date()): string {
-  const minutos = Math.max(0, Math.ceil(msAteEncerrar(agora) / 60000));
+// "3 h 20 min", "45 min", "2 min" — texto curto para caber na faixa. Passada a
+// hora anunciada, não há contagem: o bloqueio pode cair a qualquer momento.
+export function tempoRestante(agora: Date = new Date()): string | null {
+  const restante = msAteEncerrar(agora);
+  if (restante <= 0) return null;
+  const minutos = Math.max(1, Math.ceil(restante / 60000));
   const horas = Math.floor(minutos / 60);
   const resto = minutos % 60;
   if (horas === 0) return `${resto} min`;
