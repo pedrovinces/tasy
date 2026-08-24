@@ -90,7 +90,7 @@ function NovaReceita() {
         texto_livre: resultado.data.tipo === "livre" ? (resultado.data.texto_livre ?? null) : null,
         itens: resultado.data.tipo === "itens" ? (resultado.data.itens ?? []) : [],
       });
-      toast.success("Receita registrada. A folha de impressão vai abrir.");
+      toast.success("Receita pronta. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/receita/$receitaId", params: { receitaId: id } });
     } catch (erro) {
       console.error("[impressão] falha ao preparar o documento", erro);
@@ -147,9 +147,7 @@ function NovaReceita() {
                 {itens.map((item, indice) => (
                   <div key={indice} className="space-y-2 rounded-md border p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">
-                        Item {indice + 1}
-                      </span>
+                      <span className="text-sm font-medium text-foreground">Item {indice + 1}</span>
                       {itens.length > 1 && (
                         <Button
                           type="button"
@@ -165,6 +163,7 @@ function NovaReceita() {
                     <div className="space-y-1.5">
                       <Label>Medicamento</Label>
                       <Input
+                        maxLength={300}
                         value={item.medicamento}
                         onChange={(e) => atualizarItem(indice, "medicamento", e.target.value)}
                         required
@@ -174,6 +173,7 @@ function NovaReceita() {
                       <div className="space-y-1.5">
                         <Label>Dose</Label>
                         <Input
+                          maxLength={200}
                           value={item.dose}
                           onChange={(e) => atualizarItem(indice, "dose", e.target.value)}
                           required
@@ -182,6 +182,7 @@ function NovaReceita() {
                       <div className="space-y-1.5">
                         <Label>Via</Label>
                         <Input
+                          maxLength={200}
                           value={item.via}
                           onChange={(e) => atualizarItem(indice, "via", e.target.value)}
                           required
@@ -190,6 +191,7 @@ function NovaReceita() {
                       <div className="space-y-1.5">
                         <Label>Frequência</Label>
                         <Input
+                          maxLength={200}
                           value={item.frequencia}
                           onChange={(e) => atualizarItem(indice, "frequencia", e.target.value)}
                           required
@@ -213,6 +215,7 @@ function NovaReceita() {
                 <Textarea
                   id="texto_livre"
                   rows={12}
+                  maxLength={20000}
                   value={textoLivre}
                   onChange={(e) => setTextoLivre(e.target.value)}
                   placeholder="Escreva a prescrição completa…"
@@ -227,7 +230,7 @@ function NovaReceita() {
                   Cancelar
                 </Link>
               </Button>
-              <Button type="submit">Registrar receita</Button>
+              <Button type="submit">Imprimir receita</Button>
             </div>
           </form>
         </CardContent>

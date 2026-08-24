@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { agoraParaInput } from "@/lib/format";
 import { guardarDocumentoImpressao } from "@/lib/impressao-local";
 import { obterPaciente } from "@/lib/pacientes";
@@ -81,7 +82,7 @@ function NovaPrescricao() {
         alergias: resultado.data.alergias?.trim() ? resultado.data.alergias : null,
         itens: resultado.data.itens,
       });
-      toast.success("Prescrição registrada. A folha de impressão vai abrir.");
+      toast.success("Prescrição pronta. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/prescricao/$prescricaoId", params: { prescricaoId: id } });
     } catch (erro) {
       console.error("[impressão] falha ao preparar o documento", erro);
@@ -115,6 +116,7 @@ function NovaPrescricao() {
                 <Label htmlFor="alergias">Alergias</Label>
                 <Input
                   id="alergias"
+                  maxLength={500}
                   value={alergias}
                   onChange={(e) => setAlergias(e.target.value)}
                   placeholder="Ex.: dipirona · deixe vazio para preencher à mão"
@@ -149,8 +151,12 @@ function NovaPrescricao() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor={`descricao-${indice}`}>Medicação ou ordem</Label>
-                    <Input
+                    {/* Ordens de diluição e velocidade de infusão são longas;
+                        o campo cresce em vez de esconder o texto numa linha só. */}
+                    <Textarea
                       id={`descricao-${indice}`}
+                      rows={2}
+                      maxLength={1000}
                       value={item.descricao}
                       onChange={(e) => atualizarItem(indice, "descricao", e.target.value)}
                       placeholder="Ex.: Dipirona · Cabeceira a 30°"
@@ -162,6 +168,7 @@ function NovaPrescricao() {
                       <Label htmlFor={`dose-${indice}`}>Dose</Label>
                       <Input
                         id={`dose-${indice}`}
+                        maxLength={200}
                         value={item.dose ?? ""}
                         onChange={(e) => atualizarItem(indice, "dose", e.target.value)}
                       />
@@ -170,6 +177,7 @@ function NovaPrescricao() {
                       <Label htmlFor={`via-${indice}`}>Via</Label>
                       <Input
                         id={`via-${indice}`}
+                        maxLength={200}
                         value={item.via ?? ""}
                         onChange={(e) => atualizarItem(indice, "via", e.target.value)}
                       />
@@ -178,6 +186,7 @@ function NovaPrescricao() {
                       <Label htmlFor={`frequencia-${indice}`}>Frequência</Label>
                       <Input
                         id={`frequencia-${indice}`}
+                        maxLength={200}
                         value={item.frequencia ?? ""}
                         onChange={(e) => atualizarItem(indice, "frequencia", e.target.value)}
                       />
@@ -202,7 +211,7 @@ function NovaPrescricao() {
                   Cancelar
                 </Link>
               </Button>
-              <Button type="submit">Registrar prescrição</Button>
+              <Button type="submit">Imprimir prescrição</Button>
             </div>
           </form>
         </CardContent>

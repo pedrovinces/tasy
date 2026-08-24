@@ -111,7 +111,7 @@ function NovaSolicitacao() {
         exames: resultado.data.exames,
         outros: resultado.data.outros?.trim() ? resultado.data.outros : null,
       });
-      toast.success("Solicitação registrada. A folha de impressão vai abrir.");
+      toast.success("Solicitação pronta. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/exames/$solicitacaoId", params: { solicitacaoId: id } });
     } catch (erro) {
       console.error("[impressão] falha ao preparar o documento", erro);
@@ -168,6 +168,7 @@ function NovaSolicitacao() {
               <Textarea
                 id="indicacao"
                 rows={3}
+                maxLength={2000}
                 value={indicacao}
                 onChange={(e) => setIndicacao(e.target.value)}
                 placeholder="Motivo do pedido — sai impresso antes da lista de exames."
@@ -192,7 +193,7 @@ function NovaSolicitacao() {
                     </Button>
                   )}
                   <Button type="submit" size="sm" disabled={marcados.length === 0}>
-                    Gerar solicitação
+                    Imprimir solicitação
                   </Button>
                 </div>
               </div>
@@ -259,6 +260,7 @@ function NovaSolicitacao() {
               <Textarea
                 id="outros"
                 rows={2}
+                maxLength={1000}
                 value={outros}
                 onChange={(e) => setOutros(e.target.value)}
                 placeholder="O que não estiver na lista acima."
@@ -272,7 +274,7 @@ function NovaSolicitacao() {
                 </Link>
               </Button>
               <Button type="submit" disabled={marcados.length === 0}>
-                Gerar solicitação
+                Imprimir solicitação
               </Button>
             </div>
           </form>
