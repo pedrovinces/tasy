@@ -1,9 +1,13 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { sistemaEncerrado } from "@/lib/encerramento";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
+  },
   head: () => ({
     meta: [
       { title: "Contingência CSV — Evoluções e Receitas" },
