@@ -2,6 +2,7 @@
 // (sessionStorage) — não é dado de paciente, apenas preferência de trabalho.
 
 export const SETORES = [
+  "Emergência",
   "UI I",
   "UI II",
   "UI III",
@@ -13,6 +14,15 @@ export const SETORES = [
 ] as const;
 
 export type Setor = (typeof SETORES)[number];
+
+// A Emergência tem botão próprio no topo da tela de escolha, separado das
+// unidades de internação. Fora dessa tela ela é um setor como qualquer outro:
+// mesma validação, mesma listagem, mesmo comportamento dos pacientes.
+export const SETOR_EMERGENCIA = "Emergência" satisfies Setor;
+
+export const SETORES_INTERNACAO = SETORES.filter(
+  (setor): setor is Exclude<Setor, typeof SETOR_EMERGENCIA> => setor !== SETOR_EMERGENCIA,
+);
 
 const CHAVE_SETOR = "contingencia.setor";
 

@@ -1,7 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2 } from "lucide-react";
+import { Building2, Siren } from "lucide-react";
 
-import { SETORES, definirSetorSelecionado, type Setor } from "@/lib/setores";
+import {
+  SETORES_INTERNACAO,
+  SETOR_EMERGENCIA,
+  definirSetorSelecionado,
+  type Setor,
+} from "@/lib/setores";
 
 export const Route = createFileRoute("/_authenticated/setores")({
   head: () => ({
@@ -31,8 +36,17 @@ function SelecaoSetor() {
           A listagem de pacientes mostrará apenas o setor escolhido.
         </p>
       </div>
+      <button
+        type="button"
+        onClick={() => escolher(SETOR_EMERGENCIA)}
+        className="flex w-full items-center justify-center gap-2 rounded-lg border bg-card px-4 py-3 transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <Siren className="h-5 w-5 text-primary" />
+        <span className="text-sm font-semibold text-foreground">{SETOR_EMERGENCIA}</span>
+      </button>
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {SETORES.map((setor) => (
+        {SETORES_INTERNACAO.map((setor) => (
           <button
             key={setor}
             type="button"
