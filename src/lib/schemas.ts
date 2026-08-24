@@ -28,8 +28,8 @@ export const pacienteSchema = z.object({
   nome_completo: z.string().trim().min(3, "Informe o nome completo").max(200, "Nome muito longo"),
   filiacao: z.string().trim().min(3, "Informe a filiação").max(200, "Filiação muito longa"),
   data_nascimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data de nascimento inválida"),
-  sexo: z.string().trim().min(1, "Informe o sexo").max(20),
-  leito: z.string().trim().min(1, "Informe o leito").max(20),
+  sexo: z.string().trim().min(1, "Informe o sexo").max(20, "Sexo muito longo"),
+  leito: z.string().trim().min(1, "Informe o leito").max(20, "Leito muito longo"),
   setor: z.enum(SETORES, { message: "Selecione o setor" }),
 });
 
@@ -44,10 +44,14 @@ export const evolucaoSchema = z.object({
 export type EvolucaoInput = z.infer<typeof evolucaoSchema>;
 
 export const receitaItemSchema = z.object({
-  medicamento: z.string().trim().min(1, "Informe o medicamento").max(200),
-  dose: z.string().trim().min(1, "Informe a dose").max(100),
-  via: z.string().trim().min(1, "Informe a via").max(100),
-  frequencia: z.string().trim().min(1, "Informe a frequência").max(100),
+  medicamento: z
+    .string()
+    .trim()
+    .min(1, "Informe o medicamento")
+    .max(300, "O medicamento deve ter no máximo 300 caracteres"),
+  dose: z.string().trim().min(1, "Informe a dose").max(200, "Dose muito longa"),
+  via: z.string().trim().min(1, "Informe a via").max(200, "Via muito longa"),
+  frequencia: z.string().trim().min(1, "Informe a frequência").max(200, "Frequência muito longa"),
 });
 
 export type ReceitaItemInput = z.infer<typeof receitaItemSchema>;
@@ -83,10 +87,18 @@ export type ReceitaInput = z.infer<typeof receitaSchema>;
 // ("dieta zero", "cabeceira a 30°"); dose, via e frequência entram só quando
 // fazem sentido, e são coladas na mesma linha impressa.
 export const prescricaoItemSchema = z.object({
-  descricao: z.string().trim().min(1, "Informe a medicação ou a ordem").max(300),
-  dose: z.string().trim().max(100).optional(),
-  via: z.string().trim().max(100).optional(),
-  frequencia: z.string().trim().max(100).optional(),
+  descricao: z
+    .string()
+    .trim()
+    .min(1, "Informe a medicação ou a ordem")
+    .max(1000, "A medicação ou ordem deve ter no máximo 1000 caracteres"),
+  dose: z.string().trim().max(200, "A dose deve ter no máximo 200 caracteres").optional(),
+  via: z.string().trim().max(200, "A via deve ter no máximo 200 caracteres").optional(),
+  frequencia: z
+    .string()
+    .trim()
+    .max(200, "A frequência deve ter no máximo 200 caracteres")
+    .optional(),
 });
 
 export type PrescricaoItemInput = z.infer<typeof prescricaoItemSchema>;
@@ -94,7 +106,7 @@ export type PrescricaoItemInput = z.infer<typeof prescricaoItemSchema>;
 export const prescricaoSchema = z.object({
   paciente_id: z.string().uuid("Paciente inválido"),
   data_hora: z.string().min(1, "Informe a data e a hora"),
-  alergias: z.string().trim().max(300, "Texto muito longo").optional(),
+  alergias: z.string().trim().max(500, "As alergias devem ter no máximo 500 caracteres").optional(),
   itens: z
     .array(prescricaoItemSchema)
     .min(1, "Adicione ao menos uma medicação ou ordem")

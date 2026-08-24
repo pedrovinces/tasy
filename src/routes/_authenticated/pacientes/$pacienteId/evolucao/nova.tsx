@@ -71,7 +71,7 @@ function NovaEvolucao() {
         data_hora: resultado.data.data_hora,
         texto: resultado.data.texto,
       });
-      toast.success("Evolução registrada. A folha de impressão vai abrir.");
+      toast.success("Evolução pronta. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/evolucao/$evolucaoId", params: { evolucaoId: id } });
     } catch (erro) {
       console.error("[impressão] falha ao preparar o documento", erro);
@@ -113,6 +113,7 @@ function NovaEvolucao() {
               <Textarea
                 id="texto"
                 rows={14}
+                maxLength={20000}
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
                 placeholder="Descreva a evolução clínica…"
@@ -125,7 +126,7 @@ function NovaEvolucao() {
                   Cancelar
                 </Link>
               </Button>
-              <Button type="submit">Registrar evolução</Button>
+              <Button type="submit">Imprimir evolução</Button>
             </div>
           </form>
         </CardContent>
