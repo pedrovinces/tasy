@@ -1,4 +1,4 @@
-import type { Paciente, ReceitaItemInput } from "./schemas";
+import type { Paciente, PrescricaoItemInput, ReceitaItemInput } from "./schemas";
 
 // ---------------------------------------------------------------------------
 // Documentos clínicos NÃO são salvos na nuvem nem em qualquer banco de dados.
@@ -22,6 +22,21 @@ export type DocumentoImpressao =
       formato: "itens" | "livre";
       texto_livre: string | null;
       itens: ReceitaItemInput[];
+    }
+  | {
+      tipo: "prescricao";
+      paciente: Paciente;
+      data_hora: string;
+      alergias: string | null;
+      itens: PrescricaoItemInput[];
+    }
+  | {
+      tipo: "solicitacao";
+      paciente: Paciente;
+      data_hora: string;
+      indicacao: string;
+      exames: string[];
+      outros: string | null;
     };
 
 const PREFIXO = "contingencia.impressao.";

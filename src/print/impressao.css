@@ -220,6 +220,188 @@
   font-size: 7.5pt;
 }
 
+/* Prescrição médica (paisagem) --------------------------------------------- */
+
+/*
+ * O papel-modelo é A4 deitado, com a pauta ocupando a página inteira. O
+ * tamanho de página em si é definido pela própria rota de impressão, para não
+ * virar retrato os outros documentos.
+ */
+.folha-paisagem {
+  width: 297mm;
+  min-height: 210mm;
+  padding: 8mm 10mm 6mm;
+}
+
+.prescricao-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  gap: 5mm;
+}
+
+.prescricao-marca {
+  flex: 0 0 45mm;
+}
+
+.prescricao-marca img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.prescricao-titulo-bloco {
+  flex: 1;
+  padding-top: 2mm;
+}
+
+.prescricao-faixa {
+  background: #cbb094;
+  color: #1a1a1a;
+  text-align: center;
+  font-weight: bold;
+  font-size: 12pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 1.6mm 2mm;
+}
+
+.prescricao-alergia {
+  display: flex;
+  align-items: flex-end;
+  gap: 2mm;
+  margin: 3mm 0 0;
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+/* Linha contínua mesmo sem valor: o campo pode ser preenchido à mão. */
+.prescricao-alergia-valor {
+  flex: 1;
+  border-bottom: 0.3mm solid #1a1a1a;
+  min-height: 4.5mm;
+  font-weight: normal;
+}
+
+.prescricao-identificacao {
+  flex: 0 0 105mm;
+  border: 0.35mm solid #1a1a1a;
+  padding: 2mm 2.5mm;
+  font-size: 8pt;
+}
+
+/*
+ * No quadro estreito da folha deitada, os campos curtos não podem encolher:
+ * "FEMININO" e a data de nascimento saíam cortados com reticências.
+ */
+.prescricao-identificacao .id-valor.id-curto {
+  flex: 0 0 auto;
+  min-width: 14mm;
+}
+
+.prescricao-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4mm;
+  font-size: 9.5pt;
+  table-layout: fixed;
+}
+
+.prescricao-tabela th,
+.prescricao-tabela td {
+  border: 0.25mm solid #1a1a1a;
+  padding: 1.4mm 2mm;
+  text-align: left;
+  vertical-align: top;
+}
+
+.prescricao-tabela th {
+  background: #cbb094;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.prescricao-tabela .cabecalho-secundario {
+  font-size: 7pt;
+  font-weight: normal;
+  letter-spacing: 0.02em;
+}
+
+.prescricao-tabela .col-data {
+  width: 24mm;
+  text-align: center;
+}
+
+.prescricao-tabela .col-hora {
+  width: 18mm;
+  text-align: center;
+}
+
+/* Terceira coluna larga: é onde a prescrição é lida. A quarta fica para a
+   enfermagem anotar o horário de aplicação à mão. */
+.prescricao-tabela th:nth-child(3),
+.prescricao-tabela td:nth-child(3) {
+  width: 55%;
+}
+
+.prescricao-tabela .linha-vazia td {
+  height: 5.5mm;
+}
+
+.prescricao-rodape {
+  margin-top: auto;
+  padding-top: 3mm;
+}
+
+.prescricao-rodape .folha-linha-assinatura {
+  margin: 4mm auto 2mm;
+}
+
+.prescricao-emissao {
+  margin: 0;
+  text-align: center;
+  font-size: 7.5pt;
+}
+
+/* Solicitação de exames ----------------------------------------------------- */
+
+.exames-indicacao {
+  margin: 0 0 4mm;
+  border: 0.3mm solid #1a1a1a;
+  padding: 2mm 2.5mm;
+  font-size: 10pt;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.exames-grupo {
+  margin: 0 0 4mm;
+}
+
+.exames-grupo-titulo {
+  margin: 0 0 1.5mm;
+  font-size: 9pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 0.25mm solid #1a1a1a;
+}
+
+.exames-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  columns: 2;
+  column-gap: 8mm;
+  font-size: 10pt;
+}
+
+.exames-lista li {
+  break-inside: avoid;
+  margin: 0 0 1.2mm;
+}
+
 /* Impressão ---------------------------------------------------------------- */
 
 @page {
@@ -235,6 +417,17 @@
   .app-chrome,
   .acoes-impressao {
     display: none;
+  }
+
+  /*
+   * O conteúdo do app vive num contêiner de largura limitada (max-w-5xl), que
+   * é menor que a folha deitada e a espremia na impressão. No papel não existe
+   * layout de aplicação: a folha manda na largura.
+   */
+  main {
+    max-width: none;
+    margin: 0;
+    padding: 0;
   }
 
   /*
