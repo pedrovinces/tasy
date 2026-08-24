@@ -79,8 +79,17 @@ function LayoutAutenticado() {
           <div className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-2 text-sm text-foreground">
             <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
             <span>
-              O acesso ao sistema encerrará em <strong>{tempoRestante(agora)}</strong>, a partir do
-              início do uso do Tasy.
+              {tempoRestante(agora) ? (
+                <>
+                  O acesso ao sistema encerrará em <strong>{tempoRestante(agora)}</strong>, a partir
+                  do início do uso do Tasy.
+                </>
+              ) : (
+                <>
+                  O acesso ao sistema <strong>encerrará a qualquer momento</strong>, a partir do
+                  início do uso do Tasy.
+                </>
+              )}
             </span>
           </div>
         </div>
