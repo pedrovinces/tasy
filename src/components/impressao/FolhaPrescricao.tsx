@@ -237,11 +237,17 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
               </tbody>
             </table>
 
+            {/* A assinatura encerra o documento: vai só na última folha. A
+                contagem, essa sim, fica no pé de todas. */}
             <div className="prescricao-rodape">
-              <div className="folha-linha-assinatura">Assinatura e carimbo</div>
+              {indice === paginas.length - 1 && (
+                <div className="folha-linha-assinatura">Assinatura e carimbo</div>
+              )}
               <p className="prescricao-emissao">
-                Prescrição de {formatarDataHora(dataHoraIso)}
-                {paginas.length > 1 ? ` — folha ${indice + 1} de ${paginas.length}` : ""}
+                <span>Prescrição de {formatarDataHora(dataHoraIso)}</span>
+                <span>
+                  Pág. {indice + 1} de {paginas.length}
+                </span>
               </p>
             </div>
           </div>

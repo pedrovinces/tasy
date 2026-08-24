@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { FolhaA4 } from "@/components/impressao/FolhaA4";
 import { AcoesImpressao } from "@/components/impressao/AcoesImpressao";
 import { formatarDataHora } from "@/lib/format";
+import { linhasDoCorpo } from "@/lib/quebra-de-texto";
 import {
   descartarDocumentoImpressao,
   lerDocumentoImpressao,
@@ -61,6 +62,14 @@ function ImprimirEvolucao() {
     };
   }, [documento]);
 
+  // O texto vai para a folha linha a linha, medido na largura real do papel:
+  // é o que permite a evolução continuar na página seguinte sem perder o
+  // cabeçalho nem quebrar no meio de uma palavra.
+  const paragrafos = useMemo(
+    () => (documento?.tipo === "evolucao" ? linhasDoCorpo(documento.texto) : []),
+    [documento],
+  );
+
   if (!documento || documento.tipo !== "evolucao") return <NaoEncontrado />;
   const { paciente } = documento;
 
@@ -73,9 +82,18 @@ function ImprimirEvolucao() {
         titulo="Evolução Multiprofissional"
         dataHora={formatarDataHora(documento.data_hora)}
       >
-        {documento.texto.split("\n").map((paragrafo, indice) => (
-          <p key={indice}>{paragrafo}</p>
-        ))}
+        {paragrafos.flatMap((linhas, paragrafo) =>
+          linhas.map((linha, indice) => (
+            <p
+              key={`${paragrafo}-${indice}`}
+              className={
+                indice === linhas.length - 1 ? "folha-linha fim-de-paragrafo" : "folha-linha"
+              }
+            >
+              {linha}
+            </p>
+          )),
+        )}
       </FolhaA4>
     </div>
   );
