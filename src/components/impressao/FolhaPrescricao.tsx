@@ -85,6 +85,21 @@ function dividirEmLinhas(
   return linhas.length > 0 ? linhas : [texto];
 }
 
+// Reparte as linhas em folhas. Uma prescrição de UTI passa de quinze itens com
+// facilidade, e a folha deitada não pode simplesmente transbordar: o giro que a
+// impressão em WebKit exige (ver a rota) recorta o que sai do papel, e item de
+// prescrição sumindo em silêncio não é aceitável. Cada folha é montada inteira,
+// com timbrado, identificação e assinatura próprios — elas se separam no balcão
+// e cada uma precisa se sustentar sozinha.
+function repartirEmPaginas(linhas: LinhaImpressa[]): LinhaImpressa[][] {
+  if (linhas.length === 0) return [[]];
+  const paginas: LinhaImpressa[][] = [];
+  for (let inicio = 0; inicio < linhas.length; inicio += LINHAS_POR_PAGINA) {
+    paginas.push(linhas.slice(inicio, inicio + LINHAS_POR_PAGINA));
+  }
+  return paginas;
+}
+
 export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: FolhaPrescricaoProps) {
   // Emissão é o instante da impressão; as colunas repetem a data e a hora da
   // prescrição, que o médico escolhe no formulário.
@@ -121,90 +136,117 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
     );
   }, [itens]);
 
-  const linhasVazias = Math.max(0, LINHAS_POR_PAGINA - linhas.length);
+  const paginas = repartirEmPaginas(linhas);
 
   return (
-    <div className="folha-a4 folha-paisagem">
-      <header className="prescricao-cabecalho">
-        <div className="prescricao-marca">
-          <img src="/timbrado/logo-sao-vicente.png" alt="São Vicente — Rede D'Or" />
+    <>
+      {paginas.map((linhasDaPagina, indice) => (
+        // O invólucro é transparente na tela e no papel comum (`display:
+        // contents`); só o giro da impressão em WebKit o materializa, para
+        // recortar cada folha no tamanho de uma página retrato.
+        <div className="folha-envelope" key={indice}>
+          <div
+            className={
+              indice < paginas.length - 1
+                ? "folha-a4 folha-paisagem quebra-de-pagina"
+                : "folha-a4 folha-paisagem"
+            }
+          >
+            <header className="prescricao-cabecalho">
+              <div className="prescricao-marca">
+                <img src="/timbrado/logo-sao-vicente.png" alt="São Vicente — Rede D'Or" />
+              </div>
+
+              <div className="prescricao-titulo-bloco">
+                <div className="prescricao-faixa">Prescrição Médica</div>
+                <p className="prescricao-alergia">
+                  <span>Alergia:</span>
+                  <span className="prescricao-alergia-valor">{alergias ?? ""}</span>
+                </p>
+              </div>
+
+              <section className="prescricao-identificacao">
+                <div className="id-linha">
+                  <span className="id-rotulo">Nome completo:</span>
+                  <span className="id-valor">{paciente.nome_completo}</span>
+                </div>
+                <div className="id-linha">
+                  <span className="id-rotulo">Filiação:</span>
+                  <span className="id-valor">{paciente.filiacao}</span>
+                </div>
+                <div className="id-linha">
+                  <span className="id-rotulo">Nascimento:</span>
+                  <span className="id-valor id-curto">
+                    {formatarData(paciente.data_nascimento)}
+                  </span>
+                  <span className="id-rotulo">Idade:</span>
+                  <span className="id-valor id-curto">
+                    {calcularIdade(paciente.data_nascimento)}
+                  </span>
+                  <span className="id-rotulo">Sexo:</span>
+                  <span className="id-valor id-curto">{paciente.sexo}</span>
+                </div>
+                <div className="id-linha">
+                  <span className="id-rotulo">Leito:</span>
+                  <span className="id-valor id-curto">{paciente.leito}</span>
+                  <span className="id-rotulo">Unidade de origem:</span>
+                  <span className="id-valor">{paciente.setor}</span>
+                </div>
+                <div className="id-linha">
+                  <span className="id-rotulo">Data de emissão:</span>
+                  <span className="id-valor">{formatarDataHora(emitidoEm)}</span>
+                </div>
+              </section>
+            </header>
+
+            <table className="prescricao-tabela">
+              <thead>
+                <tr>
+                  <th className="col-data">Data</th>
+                  <th className="col-hora">Hora</th>
+                  <th>Plano terapêutico</th>
+                  <th>
+                    Relatório de enfermagem
+                    <br />
+                    <span className="cabecalho-secundario">Horário aplicação medicamento</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {linhasDaPagina.map((linha, indiceLinha) => (
+                  <tr key={indiceLinha}>
+                    <td className="col-data">{linha.continuacao ? "" : data}</td>
+                    <td className="col-hora">{linha.continuacao ? "" : hora}</td>
+                    <td ref={indice === 0 && indiceLinha === 0 ? refColunaPlano : undefined}>
+                      {linha.texto}
+                    </td>
+                    <td />
+                  </tr>
+                ))}
+                {Array.from(
+                  { length: Math.max(0, LINHAS_POR_PAGINA - linhasDaPagina.length) },
+                  (_, indiceVazia) => (
+                    <tr key={`vazia-${indiceVazia}`} className="linha-vazia">
+                      <td className="col-data">&nbsp;</td>
+                      <td className="col-hora">&nbsp;</td>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                    </tr>
+                  ),
+                )}
+              </tbody>
+            </table>
+
+            <div className="prescricao-rodape">
+              <div className="folha-linha-assinatura">Assinatura e carimbo</div>
+              <p className="prescricao-emissao">
+                Prescrição de {formatarDataHora(dataHoraIso)}
+                {paginas.length > 1 ? ` — folha ${indice + 1} de ${paginas.length}` : ""}
+              </p>
+            </div>
+          </div>
         </div>
-
-        <div className="prescricao-titulo-bloco">
-          <div className="prescricao-faixa">Prescrição Médica</div>
-          <p className="prescricao-alergia">
-            <span>Alergia:</span>
-            <span className="prescricao-alergia-valor">{alergias ?? ""}</span>
-          </p>
-        </div>
-
-        <section className="prescricao-identificacao">
-          <div className="id-linha">
-            <span className="id-rotulo">Nome completo:</span>
-            <span className="id-valor">{paciente.nome_completo}</span>
-          </div>
-          <div className="id-linha">
-            <span className="id-rotulo">Filiação:</span>
-            <span className="id-valor">{paciente.filiacao}</span>
-          </div>
-          <div className="id-linha">
-            <span className="id-rotulo">Nascimento:</span>
-            <span className="id-valor id-curto">{formatarData(paciente.data_nascimento)}</span>
-            <span className="id-rotulo">Idade:</span>
-            <span className="id-valor id-curto">{calcularIdade(paciente.data_nascimento)}</span>
-            <span className="id-rotulo">Sexo:</span>
-            <span className="id-valor id-curto">{paciente.sexo}</span>
-          </div>
-          <div className="id-linha">
-            <span className="id-rotulo">Leito:</span>
-            <span className="id-valor id-curto">{paciente.leito}</span>
-            <span className="id-rotulo">Unidade de origem:</span>
-            <span className="id-valor">{paciente.setor}</span>
-          </div>
-          <div className="id-linha">
-            <span className="id-rotulo">Data de emissão:</span>
-            <span className="id-valor">{formatarDataHora(emitidoEm)}</span>
-          </div>
-        </section>
-      </header>
-
-      <table className="prescricao-tabela">
-        <thead>
-          <tr>
-            <th className="col-data">Data</th>
-            <th className="col-hora">Hora</th>
-            <th>Plano terapêutico</th>
-            <th>
-              Relatório de enfermagem
-              <br />
-              <span className="cabecalho-secundario">Horário aplicação medicamento</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {linhas.map((linha, indice) => (
-            <tr key={indice}>
-              <td className="col-data">{linha.continuacao ? "" : data}</td>
-              <td className="col-hora">{linha.continuacao ? "" : hora}</td>
-              <td ref={indice === 0 ? refColunaPlano : undefined}>{linha.texto}</td>
-              <td />
-            </tr>
-          ))}
-          {Array.from({ length: linhasVazias }, (_, indice) => (
-            <tr key={`vazia-${indice}`} className="linha-vazia">
-              <td className="col-data">&nbsp;</td>
-              <td className="col-hora">&nbsp;</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="prescricao-rodape">
-        <div className="folha-linha-assinatura">Assinatura e carimbo</div>
-        <p className="prescricao-emissao">Prescrição de {formatarDataHora(dataHoraIso)}</p>
-      </div>
-    </div>
+      ))}
+    </>
   );
 }

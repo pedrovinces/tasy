@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { FolhaPrescricao } from "@/components/impressao/FolhaPrescricao";
@@ -24,8 +24,20 @@ export const Route = createFileRoute("/_authenticated/imprimir/prescricao/$presc
   component: ImprimirPrescricao,
 });
 
+// O WebKit não implementa o descritor `size` de `@page`: no Safari a folha sai
+// em retrato por mais que a regra peça paisagem. Nesses navegadores a saída é
+// girar o conteúdo 90° dentro da página retrato — mesma tinta, mesmo papel,
+// basta virar a folha para ler. Onde a regra funciona, ela é preferida: o
+// diálogo de impressão já mostra a orientação certa.
+function precisaGirarNaImpressao(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return /safari/i.test(ua) && !/chrome|chromium|crios|android|edg/i.test(ua);
+}
+
 function ImprimirPrescricao() {
   const { prescricaoId } = Route.useParams();
+  const girar = useMemo(precisaGirarNaImpressao, []);
   // O documento vive apenas nesta sessão do navegador — nada vai para a nuvem.
   const [documento] = useState<DocumentoImpressao | null>(() =>
     lerDocumentoImpressao(prescricaoId),
@@ -63,14 +75,15 @@ function ImprimirPrescricao() {
   const { paciente } = documento;
 
   return (
-    <div>
+    <div className={girar ? "impressao-girada" : undefined}>
       {/*
        * A folha de estilo define A4 retrato para todos os documentos. Esta é a
        * única em paisagem, então a regra vem daqui: declarada depois, vale
        * enquanto esta rota está montada e não altera evolução, receita nem
-       * solicitação de exames.
+       * solicitação de exames. Onde o navegador ignora a regra, ela sairia
+       * atrapalhando — a página tem de continuar retrato para o giro funcionar.
        */}
-      <style>{"@page { size: A4 landscape; margin: 0; }"}</style>
+      {!girar && <style>{"@page { size: A4 landscape; margin: 0; }"}</style>}
 
       <AcoesImpressao pacienteId={paciente.id} documento="A prescrição" />
 
