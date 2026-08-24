@@ -1,6 +1,6 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, FileText, Pencil, ScrollText } from "lucide-react";
+import { ArrowLeft, ClipboardList, FileText, FlaskConical, Pencil, ScrollText } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
@@ -186,11 +186,19 @@ function FichaPaciente() {
         </CardContent>
       </Card>
 
+      {/* Os quatro documentos que o sistema gera, na ordem de uso à beira do
+          leito. Empilham em telas estreitas. */}
       <div className="grid gap-3 sm:grid-cols-2">
         <Button asChild size="lg">
           <Link to="/pacientes/$pacienteId/evolucao/nova" params={{ pacienteId: paciente.id }}>
             <ScrollText className="mr-2 h-4 w-4" />
             Nova evolução
+          </Link>
+        </Button>
+        <Button asChild size="lg">
+          <Link to="/pacientes/$pacienteId/prescricao/nova" params={{ pacienteId: paciente.id }}>
+            <ClipboardList className="mr-2 h-4 w-4" />
+            Nova prescrição
           </Link>
         </Button>
         <Button asChild size="lg" variant="outline">
@@ -199,11 +207,17 @@ function FichaPaciente() {
             Nova receita
           </Link>
         </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link to="/pacientes/$pacienteId/exames/nova" params={{ pacienteId: paciente.id }}>
+            <FlaskConical className="mr-2 h-4 w-4" />
+            Solicitar exames
+          </Link>
+        </Button>
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Evoluções e receitas não ficam salvas: após o registro, o documento abre na folha de
-        impressão e é descartado ao sair dela.
+        Nenhum destes documentos fica salvo: após o registro, ele abre na folha de impressão e é
+        descartado ao sair dela.
       </p>
     </div>
   );

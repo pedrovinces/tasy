@@ -15,9 +15,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedSetoresRouteImport } from './routes/_authenticated/setores'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes/index'
 import { Route as AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport } from './routes/_authenticated/imprimir/evolucao/$evolucaoId'
+import { Route as AuthenticatedImprimirExamesSolicitacaoIdRouteImport } from './routes/_authenticated/imprimir/exames/$solicitacaoId'
+import { Route as AuthenticatedImprimirPrescricaoPrescricaoIdRouteImport } from './routes/_authenticated/imprimir/prescricao/$prescricaoId'
 import { Route as AuthenticatedImprimirReceitaReceitaIdRouteImport } from './routes/_authenticated/imprimir/receita/$receitaId'
 import { Route as AuthenticatedPacientesPacienteIdIndexRouteImport } from './routes/_authenticated/pacientes/$pacienteId/index'
 import { Route as AuthenticatedPacientesPacienteIdEvolucaoNovaRouteImport } from './routes/_authenticated/pacientes/$pacienteId/evolucao/nova'
+import { Route as AuthenticatedPacientesPacienteIdExamesNovaRouteImport } from './routes/_authenticated/pacientes/$pacienteId/exames/nova'
+import { Route as AuthenticatedPacientesPacienteIdPrescricaoNovaRouteImport } from './routes/_authenticated/pacientes/$pacienteId/prescricao/nova'
 import { Route as AuthenticatedPacientesPacienteIdReceitaNovaRouteImport } from './routes/_authenticated/pacientes/$pacienteId/receita/nova'
 
 const IndexRoute = IndexRouteImport.update({
@@ -51,6 +55,18 @@ const AuthenticatedImprimirEvolucaoEvolucaoIdRoute =
     path: '/imprimir/evolucao/$evolucaoId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedImprimirExamesSolicitacaoIdRoute =
+  AuthenticatedImprimirExamesSolicitacaoIdRouteImport.update({
+    id: '/imprimir/exames/$solicitacaoId',
+    path: '/imprimir/exames/$solicitacaoId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedImprimirPrescricaoPrescricaoIdRoute =
+  AuthenticatedImprimirPrescricaoPrescricaoIdRouteImport.update({
+    id: '/imprimir/prescricao/$prescricaoId',
+    path: '/imprimir/prescricao/$prescricaoId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedImprimirReceitaReceitaIdRoute =
   AuthenticatedImprimirReceitaReceitaIdRouteImport.update({
     id: '/imprimir/receita/$receitaId',
@@ -69,6 +85,18 @@ const AuthenticatedPacientesPacienteIdEvolucaoNovaRoute =
     path: '/pacientes/$pacienteId/evolucao/nova',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPacientesPacienteIdExamesNovaRoute =
+  AuthenticatedPacientesPacienteIdExamesNovaRouteImport.update({
+    id: '/pacientes/$pacienteId/exames/nova',
+    path: '/pacientes/$pacienteId/exames/nova',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPacientesPacienteIdPrescricaoNovaRoute =
+  AuthenticatedPacientesPacienteIdPrescricaoNovaRouteImport.update({
+    id: '/pacientes/$pacienteId/prescricao/nova',
+    path: '/pacientes/$pacienteId/prescricao/nova',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPacientesPacienteIdReceitaNovaRoute =
   AuthenticatedPacientesPacienteIdReceitaNovaRouteImport.update({
     id: '/pacientes/$pacienteId/receita/nova',
@@ -82,9 +110,13 @@ export interface FileRoutesByFullPath {
   '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  '/imprimir/exames/$solicitacaoId': typeof AuthenticatedImprimirExamesSolicitacaoIdRoute
+  '/imprimir/prescricao/$prescricaoId': typeof AuthenticatedImprimirPrescricaoPrescricaoIdRoute
   '/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
   '/pacientes/$pacienteId/': typeof AuthenticatedPacientesPacienteIdIndexRoute
   '/pacientes/$pacienteId/evolucao/nova': typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  '/pacientes/$pacienteId/exames/nova': typeof AuthenticatedPacientesPacienteIdExamesNovaRoute
+  '/pacientes/$pacienteId/prescricao/nova': typeof AuthenticatedPacientesPacienteIdPrescricaoNovaRoute
   '/pacientes/$pacienteId/receita/nova': typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
 }
 export interface FileRoutesByTo {
@@ -93,9 +125,13 @@ export interface FileRoutesByTo {
   '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  '/imprimir/exames/$solicitacaoId': typeof AuthenticatedImprimirExamesSolicitacaoIdRoute
+  '/imprimir/prescricao/$prescricaoId': typeof AuthenticatedImprimirPrescricaoPrescricaoIdRoute
   '/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
   '/pacientes/$pacienteId': typeof AuthenticatedPacientesPacienteIdIndexRoute
   '/pacientes/$pacienteId/evolucao/nova': typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  '/pacientes/$pacienteId/exames/nova': typeof AuthenticatedPacientesPacienteIdExamesNovaRoute
+  '/pacientes/$pacienteId/prescricao/nova': typeof AuthenticatedPacientesPacienteIdPrescricaoNovaRoute
   '/pacientes/$pacienteId/receita/nova': typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
 }
 export interface FileRoutesById {
@@ -106,9 +142,13 @@ export interface FileRoutesById {
   '/_authenticated/setores': typeof AuthenticatedSetoresRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_authenticated/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  '/_authenticated/imprimir/exames/$solicitacaoId': typeof AuthenticatedImprimirExamesSolicitacaoIdRoute
+  '/_authenticated/imprimir/prescricao/$prescricaoId': typeof AuthenticatedImprimirPrescricaoPrescricaoIdRoute
   '/_authenticated/imprimir/receita/$receitaId': typeof AuthenticatedImprimirReceitaReceitaIdRoute
   '/_authenticated/pacientes/$pacienteId/': typeof AuthenticatedPacientesPacienteIdIndexRoute
   '/_authenticated/pacientes/$pacienteId/evolucao/nova': typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  '/_authenticated/pacientes/$pacienteId/exames/nova': typeof AuthenticatedPacientesPacienteIdExamesNovaRoute
+  '/_authenticated/pacientes/$pacienteId/prescricao/nova': typeof AuthenticatedPacientesPacienteIdPrescricaoNovaRoute
   '/_authenticated/pacientes/$pacienteId/receita/nova': typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
 }
 export interface FileRouteTypes {
@@ -119,9 +159,13 @@ export interface FileRouteTypes {
     | '/setores'
     | '/pacientes/'
     | '/imprimir/evolucao/$evolucaoId'
+    | '/imprimir/exames/$solicitacaoId'
+    | '/imprimir/prescricao/$prescricaoId'
     | '/imprimir/receita/$receitaId'
     | '/pacientes/$pacienteId/'
     | '/pacientes/$pacienteId/evolucao/nova'
+    | '/pacientes/$pacienteId/exames/nova'
+    | '/pacientes/$pacienteId/prescricao/nova'
     | '/pacientes/$pacienteId/receita/nova'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -130,9 +174,13 @@ export interface FileRouteTypes {
     | '/setores'
     | '/pacientes'
     | '/imprimir/evolucao/$evolucaoId'
+    | '/imprimir/exames/$solicitacaoId'
+    | '/imprimir/prescricao/$prescricaoId'
     | '/imprimir/receita/$receitaId'
     | '/pacientes/$pacienteId'
     | '/pacientes/$pacienteId/evolucao/nova'
+    | '/pacientes/$pacienteId/exames/nova'
+    | '/pacientes/$pacienteId/prescricao/nova'
     | '/pacientes/$pacienteId/receita/nova'
   id:
     | '__root__'
@@ -142,9 +190,13 @@ export interface FileRouteTypes {
     | '/_authenticated/setores'
     | '/_authenticated/pacientes/'
     | '/_authenticated/imprimir/evolucao/$evolucaoId'
+    | '/_authenticated/imprimir/exames/$solicitacaoId'
+    | '/_authenticated/imprimir/prescricao/$prescricaoId'
     | '/_authenticated/imprimir/receita/$receitaId'
     | '/_authenticated/pacientes/$pacienteId/'
     | '/_authenticated/pacientes/$pacienteId/evolucao/nova'
+    | '/_authenticated/pacientes/$pacienteId/exames/nova'
+    | '/_authenticated/pacientes/$pacienteId/prescricao/nova'
     | '/_authenticated/pacientes/$pacienteId/receita/nova'
   fileRoutesById: FileRoutesById
 }
@@ -198,6 +250,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/imprimir/exames/$solicitacaoId': {
+      id: '/_authenticated/imprimir/exames/$solicitacaoId'
+      path: '/imprimir/exames/$solicitacaoId'
+      fullPath: '/imprimir/exames/$solicitacaoId'
+      preLoaderRoute: typeof AuthenticatedImprimirExamesSolicitacaoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/imprimir/prescricao/$prescricaoId': {
+      id: '/_authenticated/imprimir/prescricao/$prescricaoId'
+      path: '/imprimir/prescricao/$prescricaoId'
+      fullPath: '/imprimir/prescricao/$prescricaoId'
+      preLoaderRoute: typeof AuthenticatedImprimirPrescricaoPrescricaoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/imprimir/receita/$receitaId': {
       id: '/_authenticated/imprimir/receita/$receitaId'
       path: '/imprimir/receita/$receitaId'
@@ -219,6 +285,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pacientes/$pacienteId/exames/nova': {
+      id: '/_authenticated/pacientes/$pacienteId/exames/nova'
+      path: '/pacientes/$pacienteId/exames/nova'
+      fullPath: '/pacientes/$pacienteId/exames/nova'
+      preLoaderRoute: typeof AuthenticatedPacientesPacienteIdExamesNovaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pacientes/$pacienteId/prescricao/nova': {
+      id: '/_authenticated/pacientes/$pacienteId/prescricao/nova'
+      path: '/pacientes/$pacienteId/prescricao/nova'
+      fullPath: '/pacientes/$pacienteId/prescricao/nova'
+      preLoaderRoute: typeof AuthenticatedPacientesPacienteIdPrescricaoNovaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pacientes/$pacienteId/receita/nova': {
       id: '/_authenticated/pacientes/$pacienteId/receita/nova'
       path: '/pacientes/$pacienteId/receita/nova'
@@ -233,9 +313,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSetoresRoute: typeof AuthenticatedSetoresRoute
   AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
   AuthenticatedImprimirEvolucaoEvolucaoIdRoute: typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
+  AuthenticatedImprimirExamesSolicitacaoIdRoute: typeof AuthenticatedImprimirExamesSolicitacaoIdRoute
+  AuthenticatedImprimirPrescricaoPrescricaoIdRoute: typeof AuthenticatedImprimirPrescricaoPrescricaoIdRoute
   AuthenticatedImprimirReceitaReceitaIdRoute: typeof AuthenticatedImprimirReceitaReceitaIdRoute
   AuthenticatedPacientesPacienteIdIndexRoute: typeof AuthenticatedPacientesPacienteIdIndexRoute
   AuthenticatedPacientesPacienteIdEvolucaoNovaRoute: typeof AuthenticatedPacientesPacienteIdEvolucaoNovaRoute
+  AuthenticatedPacientesPacienteIdExamesNovaRoute: typeof AuthenticatedPacientesPacienteIdExamesNovaRoute
+  AuthenticatedPacientesPacienteIdPrescricaoNovaRoute: typeof AuthenticatedPacientesPacienteIdPrescricaoNovaRoute
   AuthenticatedPacientesPacienteIdReceitaNovaRoute: typeof AuthenticatedPacientesPacienteIdReceitaNovaRoute
 }
 
@@ -244,12 +328,20 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
   AuthenticatedImprimirEvolucaoEvolucaoIdRoute:
     AuthenticatedImprimirEvolucaoEvolucaoIdRoute,
+  AuthenticatedImprimirExamesSolicitacaoIdRoute:
+    AuthenticatedImprimirExamesSolicitacaoIdRoute,
+  AuthenticatedImprimirPrescricaoPrescricaoIdRoute:
+    AuthenticatedImprimirPrescricaoPrescricaoIdRoute,
   AuthenticatedImprimirReceitaReceitaIdRoute:
     AuthenticatedImprimirReceitaReceitaIdRoute,
   AuthenticatedPacientesPacienteIdIndexRoute:
     AuthenticatedPacientesPacienteIdIndexRoute,
   AuthenticatedPacientesPacienteIdEvolucaoNovaRoute:
     AuthenticatedPacientesPacienteIdEvolucaoNovaRoute,
+  AuthenticatedPacientesPacienteIdExamesNovaRoute:
+    AuthenticatedPacientesPacienteIdExamesNovaRoute,
+  AuthenticatedPacientesPacienteIdPrescricaoNovaRoute:
+    AuthenticatedPacientesPacienteIdPrescricaoNovaRoute,
   AuthenticatedPacientesPacienteIdReceitaNovaRoute:
     AuthenticatedPacientesPacienteIdReceitaNovaRoute,
 }
