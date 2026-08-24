@@ -12,6 +12,19 @@ import {
   type DocumentoImpressao,
 } from "@/lib/impressao-local";
 
+// A lista de exames é o bloco que pode não caber numa página — a solicitação
+// mais cheia possível passa de quarenta itens. Ela sai em trechos curtos: cada
+// um cabe inteiro numa folha, e empilhados eles se leem como uma lista só.
+const EXAMES_POR_TRECHO = 20;
+
+function repartir<T>(itens: readonly T[], tamanho: number): T[][] {
+  const trechos: T[][] = [];
+  for (let inicio = 0; inicio < itens.length; inicio += tamanho) {
+    trechos.push(itens.slice(inicio, inicio + tamanho));
+  }
+  return trechos;
+}
+
 export const Route = createFileRoute("/_authenticated/imprimir/exames/$solicitacaoId")({
   head: () => ({
     meta: [
@@ -101,13 +114,13 @@ function ImprimirSolicitacao() {
               {documento.indicacao}
             </p>
 
-            <section className="exames-grupo">
-              <ul className="exames-lista">
-                {folha.exames.map((exame) => (
+            {repartir(folha.exames, EXAMES_POR_TRECHO).map((trecho, indiceTrecho) => (
+              <ul className="exames-lista" key={indiceTrecho}>
+                {trecho.map((exame) => (
                   <li key={exame}>• {exame}</li>
                 ))}
               </ul>
-            </section>
+            ))}
 
             {folha.outros && (
               <section className="exames-grupo">

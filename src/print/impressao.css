@@ -110,6 +110,34 @@
 .folha-corpo {
   font-size: 11pt;
   text-align: justify;
+  /* Empurra assinatura e rodapé para o pé da página, como no papel oficial. */
+  flex: 1;
+  /* Sem escapar as margens do conteúdo: a divisão em páginas mede este bloco,
+     e uma margem que vazasse para fora dele falsearia a conta. */
+  display: flow-root;
+}
+
+/*
+ * Uma linha do texto corrido. O corpo é repartido em linhas medidas para que a
+ * página seguinte comece onde a anterior parou — ver lib/quebra-de-texto.ts.
+ */
+.folha-linha {
+  margin: 0;
+  white-space: pre-wrap;
+  min-height: 1em;
+  /* Cada linha é um parágrafo de uma linha só, e o navegador não justifica a
+     última linha de um parágrafo. Sem isto, o texto justificado do documento
+     sairia alinhado à esquerda. A última linha de cada parágrafo continua
+     solta, como deve ser. */
+  text-align-last: justify;
+}
+
+.folha-linha.fim-de-paragrafo {
+  text-align-last: left;
+}
+
+.folha-linha.fim-de-paragrafo {
+  margin-bottom: 3mm;
 }
 
 .folha-corpo p {
@@ -136,6 +164,30 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   background: #efefef;
+}
+
+/* Fecho do documento -------------------------------------------------------- */
+
+/*
+ * Assinatura e rodapé institucional só na última página: eles encerram o
+ * documento. As anteriores levam apenas a contagem, no canto inferior.
+ */
+.folha-encerramento {
+  display: flow-root;
+}
+
+.folha-numeracao {
+  margin: 6mm 0 0;
+  padding-top: 2mm;
+  border-top: 0.3mm solid #1a1a1a;
+  text-align: right;
+  font-size: 7.5pt;
+}
+
+/* Cópia usada só para medir a altura da linha de contagem. */
+.folha-numeracao-medida {
+  position: absolute;
+  visibility: hidden;
 }
 
 /* Assinatura (manual, após impressão) -------------------------------------- */
@@ -368,8 +420,10 @@
 }
 
 .prescricao-emissao {
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
   margin: 0;
-  text-align: center;
   font-size: 7.5pt;
 }
 
@@ -409,6 +463,15 @@
 .exames-lista li {
   break-inside: avoid;
   margin: 0 0 1.2mm;
+}
+
+/*
+ * A lista sai em trechos, para que nenhum bloco fique maior que uma página
+ * (ver a rota de impressão). Empilhados, os trechos têm de parecer uma lista
+ * só: o espaço entre eles é o mesmo que separa dois itens.
+ */
+.exames-lista + .exames-lista {
+  margin-top: -1.2mm;
 }
 
 /* Documentos que saem em mais de uma folha ---------------------------------- */
