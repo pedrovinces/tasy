@@ -39,9 +39,9 @@ function SelecaoSetor() {
       <button
         type="button"
         onClick={() => escolher(SETOR_EMERGENCIA)}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border bg-card px-4 py-3 transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex w-full items-center justify-center gap-3 rounded-lg border bg-card px-4 py-6 transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Siren className="h-5 w-5 text-primary" />
+        <Siren className="h-6 w-6 text-primary" />
         <span className="text-sm font-semibold text-foreground">{SETOR_EMERGENCIA}</span>
       </button>
 
