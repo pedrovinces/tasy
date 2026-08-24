@@ -443,6 +443,21 @@
   }
 
   /*
+   * Na tela a folha tem a altura exata do papel, para parecer uma folha. Na
+   * impressão isso gera uma segunda página em branco: qualquer arredondamento
+   * do navegador — ou o espaço que ele reserva para o próprio cabeçalho e
+   * rodapé — empurra os últimos pontos para a folha seguinte. Alguns
+   * milímetros a menos mantêm o rodapé embaixo e eliminam a folha fantasma.
+   */
+  .folha-a4 {
+    min-height: 288mm;
+  }
+
+  .folha-paisagem {
+    min-height: 201mm;
+  }
+
+  /*
    * Nada da interface entra no papel. O aviso de "evolução registrada" é
    * disparado ao salvar e continua na tela quando a caixa de impressão abre;
    * como ele é posicionado de forma fixa, o navegador o imprimia sobre a
