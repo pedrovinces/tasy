@@ -83,7 +83,8 @@ export const EXAMES_LABORATORIAIS: readonly GrupoExames[] = [
 export const EXAMES_IMAGEM: GrupoExames = {
   titulo: "Exames de imagem",
   itens: [
-    "RX de tórax",
+    "RX de tórax PA e perfil (gabinete)",
+    "RX de tórax AP (leito)",
     "RX de abdome",
     "TC de crânio",
     "TC de tórax",
