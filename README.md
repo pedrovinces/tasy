@@ -82,26 +82,36 @@ dados continua sendo o login e o RLS.
 
 ### 2. Apontar o domínio
 
-O domínio `csv.pedrovinces.com.br` já está fixado em `public/CNAME`, que o build copia para
-`dist/`. (A variável `CUSTOM_DOMAIN`, se existir em Settings → Secrets and variables → Actions →
-Variables, sobrescreve esse valor — útil para publicar em outro domínio sem mexer no código.)
+O domínio `contingenciacsv.com.br` já está fixado em `public/CNAME`, que o build
+copia para `dist/`. (A variável `CUSTOM_DOMAIN`, se existir em Settings → Secrets
+and variables → Actions → Variables, sobrescreve esse valor.)
 
-No DNS da Locaweb, crie um registro `CNAME`:
+Por ser domínio raiz, o apontamento é por registros `A` e `AAAA` — apex não
+aceita `CNAME`. No painel da Locaweb, na zona de DNS:
 
-| Campo | Valor |
-| --- | --- |
-| Tipo | `CNAME` |
-| Nome / Host | `csv` |
-| Aponta para / Valor | `pedrovinces.github.io.` |
-| TTL | padrão |
+| Tipo    | Nome / Host | Valor                    |
+| ------- | ----------- | ------------------------ |
+| `A`     | `@` (raiz)  | `185.199.108.153`        |
+| `A`     | `@`         | `185.199.109.153`        |
+| `A`     | `@`         | `185.199.110.153`        |
+| `A`     | `@`         | `185.199.111.153`        |
+| `AAAA`  | `@`         | `2606:50c0:8000::153`    |
+| `AAAA`  | `@`         | `2606:50c0:8001::153`    |
+| `AAAA`  | `@`         | `2606:50c0:8002::153`    |
+| `AAAA`  | `@`         | `2606:50c0:8003::153`    |
+| `CNAME` | `www`       | `pedrovinces.github.io.` |
 
-Depois, em **Settings → Pages → Custom domain**, informe `csv.pedrovinces.com.br`, aguarde a
-verificação e marque **Enforce HTTPS**.
+Os quatro `A` são do GitHub Pages e convivem: o navegador tenta o próximo se um
+falhar. O `CNAME` de `www` faz o GitHub redirecionar automaticamente para a raiz.
+
+Depois, em **Settings → Pages → Custom domain**, trocar para
+`contingenciacsv.com.br`, aguardar a verificação e marcar **Enforce HTTPS**.
 
 ### 3. Liberar o domínio no Supabase
 
-Em **Authentication → URL Configuration**, coloque `https://csv.pedrovinces.com.br` como
-**Site URL** e também na lista de **Redirect URLs**. Sem isso o login falha no domínio novo.
+Nada a fazer para o login funcionar: a tela usa `signInWithPassword`, uma chamada direta à API
+do Supabase, sem redirecionamento. **Site URL** e **Redirect URLs** só valem para login social,
+link mágico e recuperação de senha por e-mail — nenhum deles existe aqui.
 
 ### Detalhes que o Pages exige
 
@@ -113,7 +123,7 @@ Em **Authentication → URL Configuration**, coloque `https://csv.pedrovinces.co
 
 ### Antes de expor em um domínio público
 
-O site fica acessível a qualquer pessoa na internet (a tela de login, não os dados). As políticas
+O site fica acessível a qualquer pessoa na internet (a tela de acesso, não os dados). As políticas
 de RLS liberam leitura e escrita para **qualquer usuário autenticado**, então vale conferir no
 Supabase, em **Authentication → Providers**, se o autocadastro (`Enable email signup`) está
 **desligado** — caso contrário alguém poderia criar a própria conta e alcançar os dados dos
