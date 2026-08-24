@@ -83,7 +83,8 @@ function NovaPrescricao() {
       });
       toast.success("Prescrição registrada. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/prescricao/$prescricaoId", params: { prescricaoId: id } });
-    } catch {
+    } catch (erro) {
+      console.error("[impressão] falha ao preparar o documento", erro);
       toast.error("Não foi possível preparar a impressão.");
     }
   }

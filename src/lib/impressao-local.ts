@@ -41,8 +41,24 @@ export type DocumentoImpressao =
 
 const PREFIXO = "contingencia.impressao.";
 
+// O identificador é só a chave do documento nesta sessão do navegador — não
+// protege nada e não sai daqui. Precisa, isso sim, existir em qualquer
+// contexto: `crypto.randomUUID` só é oferecido em páginas seguras, e enquanto
+// o site responder em http:// ele simplesmente não existe, derrubando a
+// geração de todos os documentos. `getRandomValues` não tem essa restrição.
+function novoIdDocumento(): string {
+  if (typeof crypto !== "undefined") {
+    if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    if (typeof crypto.getRandomValues === "function") {
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  }
+  return `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`;
+}
+
 export function guardarDocumentoImpressao(documento: DocumentoImpressao): string {
-  const id = crypto.randomUUID();
+  const id = novoIdDocumento();
   window.sessionStorage.setItem(PREFIXO + id, JSON.stringify(documento));
   return id;
 }

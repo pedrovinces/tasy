@@ -113,7 +113,8 @@ function NovaSolicitacao() {
       });
       toast.success("Solicitação registrada. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/exames/$solicitacaoId", params: { solicitacaoId: id } });
-    } catch {
+    } catch (erro) {
+      console.error("[impressão] falha ao preparar o documento", erro);
       toast.error("Não foi possível preparar a impressão.");
     }
   }

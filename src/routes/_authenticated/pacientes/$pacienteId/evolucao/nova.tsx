@@ -73,7 +73,8 @@ function NovaEvolucao() {
       });
       toast.success("Evolução registrada. A folha de impressão vai abrir.");
       void navigate({ to: "/imprimir/evolucao/$evolucaoId", params: { evolucaoId: id } });
-    } catch {
+    } catch (erro) {
+      console.error("[impressão] falha ao preparar o documento", erro);
       toast.error("Não foi possível preparar a impressão.");
     }
   }

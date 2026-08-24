@@ -1,3 +1,5 @@
+import { useLayoutEffect, useRef, useState } from "react";
+
 import "@/print/impressao.css";
 import { calcularIdade, formatarData, formatarDataHora, formatarHora } from "@/lib/format";
 import type { Paciente, PrescricaoItemInput } from "@/lib/schemas";
@@ -27,6 +29,13 @@ interface FolhaPrescricaoProps {
 // contra os 210mm da página — com folga para uma linha longa que quebre em duas.
 const LINHAS_POR_PAGINA = 16;
 
+interface LinhaImpressa {
+  texto: string;
+  // Continuação de um item que não coube em uma linha. Sai sem data e hora:
+  // repeti-las sugeriria uma segunda prescrição no mesmo horário.
+  continuacao: boolean;
+}
+
 function montarLinha(item: PrescricaoItemInput): string {
   const complementos = [item.dose, item.via, item.frequencia].filter((parte): parte is string =>
     Boolean(parte && parte.trim()),
@@ -36,13 +45,83 @@ function montarLinha(item: PrescricaoItemInput): string {
     : item.descricao;
 }
 
+// Divide o texto na largura real da coluna, quebrando entre palavras. Uma
+// palavra sozinha maior que a coluna (um nome comercial enorme, uma sequência
+// de números) é partida no meio: perder texto de prescrição não é opção.
+function dividirEmLinhas(
+  texto: string,
+  largura: number,
+  medir: (trecho: string) => number,
+): string[] {
+  if (largura <= 0 || medir(texto) <= largura) return [texto];
+
+  const linhas: string[] = [];
+  let atual = "";
+  const empurrar = () => {
+    if (atual) linhas.push(atual);
+    atual = "";
+  };
+
+  for (const palavra of texto.split(/\s+/).filter(Boolean)) {
+    const tentativa = atual ? `${atual} ${palavra}` : palavra;
+    if (medir(tentativa) <= largura) {
+      atual = tentativa;
+      continue;
+    }
+
+    empurrar();
+
+    let resto = palavra;
+    while (medir(resto) > largura && resto.length > 1) {
+      let corte = resto.length;
+      while (corte > 1 && medir(resto.slice(0, corte)) > largura) corte--;
+      linhas.push(resto.slice(0, corte));
+      resto = resto.slice(corte);
+    }
+    atual = resto;
+  }
+
+  empurrar();
+  return linhas.length > 0 ? linhas : [texto];
+}
+
 export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: FolhaPrescricaoProps) {
   // Emissão é o instante da impressão; as colunas repetem a data e a hora da
   // prescrição, que o médico escolhe no formulário.
   const emitidoEm = new Date().toISOString();
   const data = formatarData(dataHoraIso);
   const hora = formatarHora(dataHoraIso);
-  const linhasVazias = Math.max(0, LINHAS_POR_PAGINA - itens.length);
+
+  const refColunaPlano = useRef<HTMLTableCellElement>(null);
+  const [linhas, setLinhas] = useState<LinhaImpressa[]>(() =>
+    itens.map((item) => ({ texto: montarLinha(item), continuacao: false })),
+  );
+
+  // A quebra usa a largura medida da coluna, não um número de caracteres
+  // estimado: assim um item longo vira linhas seguintes da pauta, em vez de
+  // engordar a linha onde está e desalinhar a tabela inteira.
+  useLayoutEffect(() => {
+    const celula = refColunaPlano.current;
+    const contexto = document.createElement("canvas").getContext("2d");
+    if (!celula || !contexto) return;
+
+    const estilo = window.getComputedStyle(celula);
+    const disponivel =
+      celula.clientWidth - parseFloat(estilo.paddingLeft) - parseFloat(estilo.paddingRight);
+    contexto.font = `${estilo.fontStyle} ${estilo.fontWeight} ${estilo.fontSize} ${estilo.fontFamily}`;
+
+    setLinhas(
+      itens.flatMap((item) =>
+        dividirEmLinhas(
+          montarLinha(item),
+          disponivel,
+          (trecho) => contexto.measureText(trecho).width,
+        ).map((texto, indice) => ({ texto, continuacao: indice > 0 })),
+      ),
+    );
+  }, [itens]);
+
+  const linhasVazias = Math.max(0, LINHAS_POR_PAGINA - linhas.length);
 
   return (
     <div className="folha-a4 folha-paisagem">
@@ -103,11 +182,11 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
           </tr>
         </thead>
         <tbody>
-          {itens.map((item, indice) => (
+          {linhas.map((linha, indice) => (
             <tr key={indice}>
-              <td className="col-data">{data}</td>
-              <td className="col-hora">{hora}</td>
-              <td>{montarLinha(item)}</td>
+              <td className="col-data">{linha.continuacao ? "" : data}</td>
+              <td className="col-hora">{linha.continuacao ? "" : hora}</td>
+              <td ref={indice === 0 ? refColunaPlano : undefined}>{linha.texto}</td>
               <td />
             </tr>
           ))}
