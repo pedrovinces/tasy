@@ -158,7 +158,7 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
               </div>
 
               <div className="prescricao-titulo-bloco">
-                <div className="prescricao-faixa">Prescrição Médica</div>
+                <div className="prescricao-faixa">Prescrição</div>
                 <p className="prescricao-alergia">
                   <span>Alergia:</span>
                   <span className="prescricao-alergia-valor">{alergias ?? ""}</span>
