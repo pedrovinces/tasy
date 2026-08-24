@@ -27,7 +27,7 @@ interface FolhaPrescricaoProps {
 // Quantas linhas a folha deitada comporta sem empurrar a assinatura para uma
 // segunda página. O número saiu de medição — cabeçalho, tabela e rodapé somados
 // contra os 210mm da página — com folga para uma linha longa que quebre em duas.
-const LINHAS_POR_PAGINA = 16;
+const LINHAS_POR_PAGINA = 15;
 
 interface LinhaImpressa {
   texto: string;
