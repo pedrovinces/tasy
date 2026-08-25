@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EncerradoRouteImport } from './routes/encerrado'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedSetoresRouteImport } from './routes/_authenticated/setores'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes/index'
 import { Route as AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport } from './routes/_authenticated/imprimir/evolucao/$evolucaoId'
@@ -42,6 +43,11 @@ const AuthRoute = AuthRouteImport.update({
 const EncerradoRoute = EncerradoRouteImport.update({
   id: '/encerrado',
   path: '/encerrado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedSetoresRoute = AuthenticatedSetoresRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/encerrado': typeof EncerradoRoute
+  '/login': typeof LoginRoute
   '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/encerrado': typeof EncerradoRoute
+  '/login': typeof LoginRoute
   '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/encerrado': typeof EncerradoRoute
+  '/login': typeof LoginRoute
   '/_authenticated/setores': typeof AuthenticatedSetoresRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_authenticated/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/encerrado'
+    | '/login'
     | '/setores'
     | '/pacientes/'
     | '/imprimir/evolucao/$evolucaoId'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/encerrado'
+    | '/login'
     | '/setores'
     | '/pacientes'
     | '/imprimir/evolucao/$evolucaoId'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/encerrado'
+    | '/login'
     | '/_authenticated/setores'
     | '/_authenticated/pacientes/'
     | '/_authenticated/imprimir/evolucao/$evolucaoId'
@@ -217,6 +229,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   EncerradoRoute: typeof EncerradoRoute
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/encerrado'
       fullPath: '/encerrado'
       preLoaderRoute: typeof EncerradoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/setores': {
@@ -374,6 +394,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   EncerradoRoute: EncerradoRoute,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
