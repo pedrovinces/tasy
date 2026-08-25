@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated")({
     // Antes de qualquer coisa: passado o prazo, nem a sessão vale mais.
     if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    if (error || !data.user) throw redirect({ to: "/login" });
     return { user: data.user };
   },
   component: LayoutAutenticado,
@@ -43,7 +43,7 @@ function LayoutAutenticado() {
   async function sair() {
     limparSetorSelecionado();
     await supabase.auth.signOut();
-    void navigate({ to: "/auth" });
+    void navigate({ to: "/login" });
   }
 
   return (
