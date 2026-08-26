@@ -10,11 +10,6 @@
 // de permissões no banco, no mesmo instante — sem ela, quem tem a senha
 // alcança os dados por fora do site.
 
-// Início do uso: 28/08/2026 ao meio-dia de Brasília (UTC-3) = 15:00 UTC. Não
-// bloqueia nada — quem tem a senha entra antes se precisar. Serve para a
-// página inicial anunciar a partir de quando o sistema vale.
-export const ABERTURA = new Date("2026-08-28T15:00:00Z");
-
 // Duas datas de encerramento, de propósito.
 //
 // A contagem da faixa mira a meia-noite: é a hora anunciada para a equipe, a
