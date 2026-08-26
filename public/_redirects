@@ -1,0 +1,9 @@
+# O site é uma aplicação de página única: o servidor não conhece /pacientes,
+# /login nem as rotas de impressão — quem resolve o endereço é o roteador que
+# roda no navegador. Sem esta regra, abrir um endereço direto (ou recarregar a
+# página) devolveria 404. O 200 no fim é o que diferencia de um redirecionamento:
+# o endereço digitado permanece na barra.
+#
+# Formato lido pelo Cloudflare Pages e pela Netlify. No GitHub Pages este
+# arquivo é ignorado — lá o mesmo efeito vem do 404.html gerado na publicação.
+/*    /index.html   200
