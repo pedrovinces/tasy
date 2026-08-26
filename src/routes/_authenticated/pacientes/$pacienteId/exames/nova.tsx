@@ -21,6 +21,7 @@ import { agoraParaInput } from "@/lib/format";
 import { guardarDocumentoImpressao } from "@/lib/impressao-local";
 import { obterPaciente } from "@/lib/pacientes";
 import { solicitacaoExamesSchema } from "@/lib/schemas";
+import { normalizarBusca } from "@/lib/texto";
 
 const pacienteQuery = (id: string) =>
   queryOptions({
@@ -44,18 +45,10 @@ export const Route = createFileRoute("/_authenticated/pacientes/$pacienteId/exam
   component: NovaSolicitacao,
 });
 
-// Acentos atrapalham a busca por digitação: "cranio" precisa achar "crânio".
-function normalizar(texto: string): string {
-  return texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
 function filtrarGrupo(grupo: GrupoExames, busca: string): GrupoExames | null {
   if (!busca) return grupo;
-  const alvo = normalizar(busca);
-  const itens = grupo.itens.filter((item) => normalizar(item).includes(alvo));
+  const alvo = normalizarBusca(busca);
+  const itens = grupo.itens.filter((item) => normalizarBusca(item).includes(alvo));
   return itens.length > 0 ? { titulo: grupo.titulo, itens } : null;
 }
 

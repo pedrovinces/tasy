@@ -46,6 +46,7 @@ import { calcularIdade, formatarData } from "@/lib/format";
 import { criarPaciente, desativarPaciente, listarPacientes } from "@/lib/pacientes";
 import { pacienteSchema } from "@/lib/schemas";
 import { obterSetorSelecionado, SETORES } from "@/lib/setores";
+import { normalizarBusca } from "@/lib/texto";
 
 const pacientesQuery = queryOptions({
   queryKey: ["pacientes"],
@@ -89,14 +90,17 @@ function ListaPacientes() {
   // Sem setor escolhido, a listagem não abre: volta para a escolha do setor.
   if (!setorAtual) return <Navigate to="/setores" replace />;
 
-  const termo = busca.trim().toLowerCase();
+  // No plantão ninguém acerta acento: "joao goncalves" tem de achar "JOÃO
+  // GONÇALVES". E a busca é por palavras soltas, em qualquer ordem, sobre o
+  // nome e o leito juntos — "joao silva" acha "JOÃO DA SILVA", e "3 joao" acha
+  // o João do leito 3.
+  const palavras = normalizarBusca(busca).split(/\s+/).filter(Boolean);
   const doSetor = pacientes.filter((p) => p.setor === setorAtual);
-  const filtrados = doSetor.filter(
-    (p) =>
-      termo.length === 0 ||
-      p.nome_completo.toLowerCase().includes(termo) ||
-      p.leito.toLowerCase().includes(termo),
-  );
+  const filtrados = doSetor.filter((p) => {
+    if (palavras.length === 0) return true;
+    const alvo = normalizarBusca(`${p.nome_completo} ${p.leito}`);
+    return palavras.every((palavra) => alvo.includes(palavra));
+  });
 
   async function salvarPaciente(evento: FormEvent) {
     evento.preventDefault();
@@ -154,6 +158,7 @@ function ListaPacientes() {
                 <Label htmlFor="nome_completo">Nome completo</Label>
                 <Input
                   id="nome_completo"
+                  className="uppercase"
                   value={form.nome_completo}
                   onChange={(e) => setForm({ ...form, nome_completo: e.target.value })}
                   required
@@ -163,6 +168,7 @@ function ListaPacientes() {
                 <Label htmlFor="filiacao">Filiação</Label>
                 <Input
                   id="filiacao"
+                  className="uppercase"
                   value={form.filiacao}
                   onChange={(e) => setForm({ ...form, filiacao: e.target.value })}
                   required
@@ -200,6 +206,7 @@ function ListaPacientes() {
                   <Label htmlFor="leito">Leito</Label>
                   <Input
                     id="leito"
+                    className="uppercase"
                     value={form.leito}
                     onChange={(e) => setForm({ ...form, leito: e.target.value })}
                     required
@@ -281,10 +288,7 @@ function ListaPacientes() {
                   <TableCell>{p.sexo}</TableCell>
                   <TableCell>{p.setor}</TableCell>
                   <TableCell>
-                    <div
-                      className="flex justify-end gap-1"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="sm" variant="ghost" aria-label="Remover da lista">

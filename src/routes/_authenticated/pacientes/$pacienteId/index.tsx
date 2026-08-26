@@ -141,6 +141,7 @@ function FichaPaciente() {
                   <Label htmlFor="edit-leito">Leito</Label>
                   <Input
                     id="edit-leito"
+                    className="uppercase"
                     value={leito}
                     onChange={(e) => setLeito(e.target.value)}
                     required
