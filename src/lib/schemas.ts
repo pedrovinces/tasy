@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { SETORES } from "./setores";
+import { maiusculas } from "./texto";
 
 // ---------------------------------------------------------------------------
 // Tipos compartilhados (client-safe)
@@ -24,12 +25,30 @@ export interface Paciente {
 // Documentos clínicos não têm tipo de banco: nunca são persistidos.
 // ---------------------------------------------------------------------------
 
+// A identificação do paciente é gravada em caixa alta, como no papel oficial:
+// assim a lista não mistura "maria souza" com "Maria Souza" e a folha impressa
+// sai sempre igual, tenha sido cadastrada por quem for.
 export const pacienteSchema = z.object({
-  nome_completo: z.string().trim().min(3, "Informe o nome completo").max(200, "Nome muito longo"),
-  filiacao: z.string().trim().min(3, "Informe a filiação").max(200, "Filiação muito longa"),
+  nome_completo: z
+    .string()
+    .trim()
+    .min(3, "Informe o nome completo")
+    .max(200, "Nome muito longo")
+    .transform(maiusculas),
+  filiacao: z
+    .string()
+    .trim()
+    .min(3, "Informe a filiação")
+    .max(200, "Filiação muito longa")
+    .transform(maiusculas),
   data_nascimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data de nascimento inválida"),
   sexo: z.string().trim().min(1, "Informe o sexo").max(20, "Sexo muito longo"),
-  leito: z.string().trim().min(1, "Informe o leito").max(20, "Leito muito longo"),
+  leito: z
+    .string()
+    .trim()
+    .min(1, "Informe o leito")
+    .max(20, "Leito muito longo")
+    .transform(maiusculas),
   setor: z.enum(SETORES, { message: "Selecione o setor" }),
 });
 

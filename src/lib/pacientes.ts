@@ -12,6 +12,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { pacienteSchema, type Paciente, type PacienteInput } from "./schemas";
 import { SETORES } from "./setores";
+import { maiusculas } from "./texto";
 
 const idSchema = z.string().uuid();
 
@@ -30,9 +31,22 @@ function falha(operacao: string, erro: PostgrestError, mensagem: string): Error 
 
 const localSchema = z.object({
   id: idSchema,
-  leito: z.string().trim().min(1, "Informe o leito").max(20),
+  leito: z.string().trim().min(1, "Informe o leito").max(20).transform(maiusculas),
   setor: z.enum(SETORES, { message: "Selecione o setor" }),
 });
+
+// A identificação sobe para caixa alta também na saída, não só na gravação:
+// quem foi cadastrado antes desta regra — ou inserido direto no banco — aparece
+// igual a todo mundo, na lista, na ficha e no papel. Sexo e setor ficam de
+// fora: são listas fechadas, e "UTI GERAL" não bateria com o setor escolhido.
+function comIdentificacaoEmCaixaAlta(paciente: Paciente): Paciente {
+  return {
+    ...paciente,
+    nome_completo: maiusculas(paciente.nome_completo),
+    filiacao: maiusculas(paciente.filiacao),
+    leito: maiusculas(paciente.leito),
+  };
+}
 
 export async function listarPacientes(): Promise<Paciente[]> {
   const { data, error } = await supabase
@@ -41,7 +55,7 @@ export async function listarPacientes(): Promise<Paciente[]> {
     .eq("ativo", true)
     .order("leito", { ascending: true });
   if (error) throw falha("listar", error, "Não foi possível carregar os pacientes.");
-  return (data ?? []) as Paciente[];
+  return ((data ?? []) as Paciente[]).map(comIdentificacaoEmCaixaAlta);
 }
 
 export async function obterPaciente(id: string): Promise<Paciente | null> {
@@ -52,7 +66,7 @@ export async function obterPaciente(id: string): Promise<Paciente | null> {
     .eq("id", pacienteId)
     .maybeSingle();
   if (error) throw falha("obter", error, "Não foi possível carregar o paciente.");
-  return (data ?? null) as Paciente | null;
+  return data ? comIdentificacaoEmCaixaAlta(data as Paciente) : null;
 }
 
 export async function criarPaciente(input: PacienteInput): Promise<{ id: string }> {
