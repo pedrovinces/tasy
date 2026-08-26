@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   Activity,
   BedDouble,
@@ -10,14 +11,28 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { setoresDoDominio } from "@/lib/dominios";
 import {
   SETORES_INTERNACAO,
   SETOR_EMERGENCIA,
   definirSetorSelecionado,
+  obterSetorSelecionado,
   type Setor,
 } from "@/lib/setores";
 
 export const Route = createFileRoute("/_authenticated/setores")({
+  // Endereço de uma unidade com um setor só não tem escolha a fazer: entra
+  // direto na lista. Só na primeira vez, porém — quem chega aqui pelo "Trocar
+  // setor" já tem setor escolhido e quer justamente trocá-lo, então a tela
+  // aparece normalmente.
+  beforeLoad: () => {
+    if (obterSetorSelecionado()) return;
+    const doDominio = setoresDoDominio();
+    const unico = doDominio?.length === 1 ? doDominio[0] : undefined;
+    if (!unico) return;
+    definirSetorSelecionado(unico);
+    throw redirect({ to: "/pacientes", replace: true });
+  },
   head: () => ({
     meta: [
       { title: "Setores — Contingência CSV" },
@@ -45,8 +60,14 @@ const ICONES: Partial<Record<Setor, LucideIcon>> = {
   Emergência: Siren,
 };
 
+const CARTAO =
+  "flex flex-col items-center gap-2 rounded-lg border bg-card px-4 py-6 text-center transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
 function SelecaoSetor() {
   const navigate = useNavigate();
+  const doDominio = setoresDoDominio();
+  const [verTodos, setVerTodos] = useState(false);
+  const filtrado = doDominio !== null && !verTodos;
 
   function escolher(setor: Setor) {
     definirSetorSelecionado(setor);
@@ -58,34 +79,69 @@ function SelecaoSetor() {
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold text-foreground">Escolha o setor</h1>
         <p className="text-sm text-muted-foreground">
-          A listagem de pacientes mostrará apenas o setor escolhido.
+          {filtrado
+            ? "Os setores deste endereço. A listagem de pacientes mostrará apenas o setor escolhido."
+            : "A listagem de pacientes mostrará apenas o setor escolhido."}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={() => escolher(SETOR_EMERGENCIA)}
-        className="flex w-full items-center justify-center gap-3 rounded-lg border bg-card px-4 py-6 transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <Siren className="h-6 w-6 text-primary" />
-        <span className="text-sm font-semibold text-foreground">{SETOR_EMERGENCIA}</span>
-      </button>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {SETORES_INTERNACAO.map((setor) => {
-          const Icone = ICONES[setor] ?? Building2;
-          return (
-            <button
-              key={setor}
-              type="button"
-              onClick={() => escolher(setor)}
-              className="flex flex-col items-center gap-2 rounded-lg border bg-card px-4 py-6 text-center transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Icone className="h-6 w-6 text-primary" />
-              <span className="text-sm font-semibold text-foreground">{setor}</span>
-            </button>
-          );
-        })}
-      </div>
+      {filtrado ? (
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {doDominio.map((setor) => {
+              const Icone = ICONES[setor] ?? Building2;
+              return (
+                <button
+                  key={setor}
+                  type="button"
+                  onClick={() => escolher(setor)}
+                  className={CARTAO}
+                >
+                  <Icone className="h-6 w-6 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">{setor}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* O endereço é atalho, não cerca: qualquer setor continua ao alcance. */}
+          <button
+            type="button"
+            onClick={() => setVerTodos(true)}
+            className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+          >
+            Ver todos os setores
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={() => escolher(SETOR_EMERGENCIA)}
+            className="flex w-full items-center justify-center gap-3 rounded-lg border bg-card px-4 py-6 transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Siren className="h-6 w-6 text-primary" />
+            <span className="text-sm font-semibold text-foreground">{SETOR_EMERGENCIA}</span>
+          </button>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {SETORES_INTERNACAO.map((setor) => {
+              const Icone = ICONES[setor] ?? Building2;
+              return (
+                <button
+                  key={setor}
+                  type="button"
+                  onClick={() => escolher(setor)}
+                  className={CARTAO}
+                >
+                  <Icone className="h-6 w-6 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">{setor}</span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
