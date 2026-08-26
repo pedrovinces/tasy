@@ -1,5 +1,5 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Activity,
   BedDouble,
@@ -21,18 +21,6 @@ import {
 } from "@/lib/setores";
 
 export const Route = createFileRoute("/_authenticated/setores")({
-  // Endereço de uma unidade com um setor só não tem escolha a fazer: entra
-  // direto na lista. Só na primeira vez, porém — quem chega aqui pelo "Trocar
-  // setor" já tem setor escolhido e quer justamente trocá-lo, então a tela
-  // aparece normalmente.
-  beforeLoad: () => {
-    if (obterSetorSelecionado()) return;
-    const doDominio = setoresDoDominio();
-    const unico = doDominio?.length === 1 ? doDominio[0] : undefined;
-    if (!unico) return;
-    definirSetorSelecionado(unico);
-    throw redirect({ to: "/pacientes", replace: true });
-  },
   head: () => ({
     meta: [
       { title: "Setores — Contingência CSV" },
@@ -66,13 +54,33 @@ const CARTAO =
 function SelecaoSetor() {
   const navigate = useNavigate();
   const doDominio = setoresDoDominio();
+  const unico = doDominio?.length === 1 ? (doDominio[0] ?? null) : null;
   const [verTodos, setVerTodos] = useState(false);
   const filtrado = doDominio !== null && !verTodos;
+
+  // Endereço de uma unidade com um setor só não tem escolha a fazer: entra
+  // direto na lista. Só na primeira vez, porém — quem chega aqui pelo "Trocar
+  // setor" já tem setor escolhido e quer justamente trocá-lo. A decisão é
+  // tomada uma vez, na montagem, para o próprio desvio não a mudar.
+  //
+  // O desvio acontece aqui, depois da montagem, e não na guarda da rota: feito
+  // na guarda, ele dispara enquanto a verificação de sessão ainda está em
+  // curso e a tela fica em branco até alguém recarregar.
+  const [entrarDireto] = useState(() => unico !== null && obterSetorSelecionado() === null);
+
+  useEffect(() => {
+    if (!entrarDireto || unico === null) return;
+    definirSetorSelecionado(unico);
+    void navigate({ to: "/pacientes", replace: true });
+  }, [entrarDireto, unico, navigate]);
 
   function escolher(setor: Setor) {
     definirSetorSelecionado(setor);
     void navigate({ to: "/pacientes" });
   }
+
+  // Enquanto o desvio não acontece, nada de piscar a tela de escolha.
+  if (entrarDireto) return null;
 
   return (
     <div className="space-y-6">
