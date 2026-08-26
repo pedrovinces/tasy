@@ -46,7 +46,7 @@ import { calcularIdade, formatarData } from "@/lib/format";
 import { criarPaciente, desativarPaciente, listarPacientes } from "@/lib/pacientes";
 import { pacienteSchema } from "@/lib/schemas";
 import { obterSetorSelecionado, SETORES } from "@/lib/setores";
-import { normalizarBusca } from "@/lib/texto";
+import { caixaAlta, normalizarBusca } from "@/lib/texto";
 
 const pacientesQuery = queryOptions({
   queryKey: ["pacientes"],
@@ -160,7 +160,7 @@ function ListaPacientes() {
                   id="nome_completo"
                   className="uppercase"
                   value={form.nome_completo}
-                  onChange={(e) => setForm({ ...form, nome_completo: e.target.value })}
+                  onChange={(e) => setForm({ ...form, nome_completo: caixaAlta(e.target.value) })}
                   required
                 />
               </div>
@@ -170,7 +170,7 @@ function ListaPacientes() {
                   id="filiacao"
                   className="uppercase"
                   value={form.filiacao}
-                  onChange={(e) => setForm({ ...form, filiacao: e.target.value })}
+                  onChange={(e) => setForm({ ...form, filiacao: caixaAlta(e.target.value) })}
                   required
                 />
               </div>
@@ -208,7 +208,7 @@ function ListaPacientes() {
                     id="leito"
                     className="uppercase"
                     value={form.leito}
-                    onChange={(e) => setForm({ ...form, leito: e.target.value })}
+                    onChange={(e) => setForm({ ...form, leito: caixaAlta(e.target.value) })}
                     required
                   />
                 </div>

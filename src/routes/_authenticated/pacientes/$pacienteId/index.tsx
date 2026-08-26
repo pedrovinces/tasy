@@ -27,6 +27,7 @@ import {
 import { calcularIdade, formatarData } from "@/lib/format";
 import { atualizarLocalPaciente, obterPaciente } from "@/lib/pacientes";
 import { SETORES } from "@/lib/setores";
+import { caixaAlta } from "@/lib/texto";
 
 // Cartão de ação: alvo grande para o dedo, ícone acima do rótulo — o mesmo
 // desenho da escolha de setor.
@@ -143,7 +144,7 @@ function FichaPaciente() {
                     id="edit-leito"
                     className="uppercase"
                     value={leito}
-                    onChange={(e) => setLeito(e.target.value)}
+                    onChange={(e) => setLeito(caixaAlta(e.target.value))}
                     required
                   />
                 </div>

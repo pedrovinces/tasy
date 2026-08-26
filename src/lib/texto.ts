@@ -17,11 +17,19 @@ export function normalizarBusca(texto: string): string {
 }
 
 /**
+ * Sobe a caixa e mais nada. É o que se usa enquanto a pessoa digita: aparar as
+ * pontas aqui comeria o espaço que ela acabou de teclar entre dois nomes.
+ */
+export function caixaAlta(texto: string): string {
+  return texto.toLocaleUpperCase("pt-BR");
+}
+
+/**
  * Caixa alta para a identificação do paciente, como no papel oficial. Apara as
  * pontas e junta espaços repetidos, para "maria  souza " e "Maria Souza" não
  * virarem dois cadastros diferentes na tela. O acento é preservado: quem
  * procura por "joao" acha "JOÃO" porque quem compara é o normalizarBusca.
  */
 export function maiusculas(texto: string): string {
-  return texto.trim().replace(/\s+/g, " ").toLocaleUpperCase("pt-BR");
+  return caixaAlta(texto.trim().replace(/\s+/g, " "));
 }
