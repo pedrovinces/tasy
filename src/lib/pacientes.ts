@@ -65,6 +65,20 @@ export async function listarPacientes(): Promise<Paciente[]> {
   return ((data ?? []) as Paciente[]).map(normalizarPaciente);
 }
 
+/**
+ * Todos os pacientes, inclusive os removidos da lista, para o painel de
+ * estatísticas. A listagem do plantão continua trazendo só os ativos — quem
+ * está atendendo não tem o que fazer com quem já saiu.
+ */
+export async function listarTodosPacientes(): Promise<Paciente[]> {
+  const { data, error } = await supabase
+    .from("pacientes")
+    .select("*")
+    .order("created_at", { ascending: true });
+  if (error) throw falha("listar todos", error, "Não foi possível carregar as estatísticas.");
+  return ((data ?? []) as Paciente[]).map(normalizarPaciente);
+}
+
 export async function obterPaciente(id: string): Promise<Paciente | null> {
   const pacienteId = idSchema.parse(id);
   const { data, error } = await supabase

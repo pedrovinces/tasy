@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EncerradoRouteImport } from './routes/encerrado'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSetoresRouteImport } from './routes/_authenticated/setores'
 import { Route as AuthenticatedPacientesIndexRouteImport } from './routes/_authenticated/pacientes/index'
 import { Route as AuthenticatedImprimirEvolucaoEvolucaoIdRouteImport } from './routes/_authenticated/imprimir/evolucao/$evolucaoId'
@@ -49,6 +50,11 @@ const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSetoresRoute = AuthenticatedSetoresRouteImport.update({
   id: '/setores',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/encerrado': typeof EncerradoRoute
   '/login': typeof LoginRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/encerrado': typeof EncerradoRoute
   '/login': typeof LoginRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/setores': typeof AuthenticatedSetoresRoute
   '/pacientes': typeof AuthenticatedPacientesIndexRoute
   '/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/encerrado': typeof EncerradoRoute
   '/login': typeof LoginRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/setores': typeof AuthenticatedSetoresRoute
   '/_authenticated/pacientes/': typeof AuthenticatedPacientesIndexRoute
   '/_authenticated/imprimir/evolucao/$evolucaoId': typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/encerrado'
     | '/login'
+    | '/dashboard'
     | '/setores'
     | '/pacientes/'
     | '/imprimir/evolucao/$evolucaoId'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/encerrado'
     | '/login'
+    | '/dashboard'
     | '/setores'
     | '/pacientes'
     | '/imprimir/evolucao/$evolucaoId'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/encerrado'
     | '/login'
+    | '/_authenticated/dashboard'
     | '/_authenticated/setores'
     | '/_authenticated/pacientes/'
     | '/_authenticated/imprimir/evolucao/$evolucaoId'
@@ -268,6 +280,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/setores': {
       id: '/_authenticated/setores'
@@ -350,6 +369,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedSetoresRoute: typeof AuthenticatedSetoresRoute
   AuthenticatedPacientesIndexRoute: typeof AuthenticatedPacientesIndexRoute
   AuthenticatedImprimirEvolucaoEvolucaoIdRoute: typeof AuthenticatedImprimirEvolucaoEvolucaoIdRoute
@@ -364,6 +384,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedSetoresRoute: AuthenticatedSetoresRoute,
   AuthenticatedPacientesIndexRoute: AuthenticatedPacientesIndexRoute,
   AuthenticatedImprimirEvolucaoEvolucaoIdRoute:
