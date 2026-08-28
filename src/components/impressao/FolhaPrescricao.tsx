@@ -29,6 +29,12 @@ interface FolhaPrescricaoProps {
 // contra os 210mm da página — com folga para uma linha longa que quebre em duas.
 const LINHAS_POR_PAGINA = 15;
 
+// A prescrição sai em duas vias: uma fica no prontuário do paciente e a outra
+// vai para a enfermagem, que anota nela o horário de cada aplicação. Sair
+// impressa em duplicata poupa a equipe de lembrar de pedir duas cópias no
+// diálogo de impressão — e de descobrir que esqueceu depois de assinar.
+const VIAS = ["1ª via", "2ª via"] as const;
+
 interface LinhaImpressa {
   texto: string;
   // Continuação de um item que não coube em uma linha. Sai sem data e hora:
@@ -137,17 +143,27 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
   }, [itens]);
 
   const paginas = repartirEmPaginas(linhas);
+  // Cada via é o documento inteiro: as páginas se repetem na ordem, e a
+  // assinatura fecha a última folha de cada uma.
+  const folhas = VIAS.flatMap((via) =>
+    paginas.map((linhasDaPagina, indice) => ({
+      via,
+      linhasDaPagina,
+      indice,
+      ultimaDaVia: indice === paginas.length - 1,
+    })),
+  );
 
   return (
     <>
-      {paginas.map((linhasDaPagina, indice) => (
+      {folhas.map(({ via, linhasDaPagina, indice, ultimaDaVia }, posicao) => (
         // O invólucro é transparente na tela e no papel comum (`display:
         // contents`); só o giro da impressão em WebKit o materializa, para
         // recortar cada folha no tamanho de uma página retrato.
-        <div className="folha-envelope" key={indice}>
+        <div className="folha-envelope" key={`${via}-${indice}`}>
           <div
             className={
-              indice < paginas.length - 1
+              posicao < folhas.length - 1
                 ? "folha-a4 folha-paisagem quebra-de-pagina"
                 : "folha-a4 folha-paisagem"
             }
@@ -217,7 +233,7 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
                   <tr key={indiceLinha}>
                     <td className="col-data">{linha.continuacao ? "" : data}</td>
                     <td className="col-hora">{linha.continuacao ? "" : hora}</td>
-                    <td ref={indice === 0 && indiceLinha === 0 ? refColunaPlano : undefined}>
+                    <td ref={posicao === 0 && indiceLinha === 0 ? refColunaPlano : undefined}>
                       {linha.texto}
                     </td>
                     <td />
@@ -237,14 +253,16 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
               </tbody>
             </table>
 
-            {/* A assinatura encerra o documento: vai só na última folha. A
-                contagem, essa sim, fica no pé de todas. */}
+            {/* A assinatura encerra o documento, e cada via é um documento
+                inteiro: vai na última folha de cada uma. A contagem, essa sim,
+                fica no pé de todas — e conta as páginas da via, não do papel
+                que sai da impressora. */}
             <div className="prescricao-rodape">
-              {indice === paginas.length - 1 && (
-                <div className="folha-linha-assinatura">Assinatura e carimbo</div>
-              )}
+              {ultimaDaVia && <div className="folha-linha-assinatura">Assinatura e carimbo</div>}
               <p className="prescricao-emissao">
-                <span>Prescrição de {formatarDataHora(dataHoraIso)}</span>
+                <span>
+                  Prescrição de {formatarDataHora(dataHoraIso)} · {via}
+                </span>
                 <span>
                   Pág. {indice + 1} de {paginas.length}
                 </span>
