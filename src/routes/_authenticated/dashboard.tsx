@@ -376,9 +376,12 @@ function ContagemDesligada() {
           mostrar zero pareceria que ninguém usou.
         </p>
         <p>
-          Para ligar: rodar <code className="text-foreground">supabase/seeds/eventos.sql</code> no
-          SQL Editor do Supabase. A tabela guarda apenas tipo, setor e hora — nunca dado de
-          paciente. A contagem passa a valer do momento em que for criada.
+          Para ligar: abrir o arquivo{" "}
+          <code className="text-foreground">supabase/seeds/eventos.sql</code> no repositório,{" "}
+          <strong className="text-foreground">copiar o conteúdo dele</strong> e colar no SQL Editor
+          do Supabase — o caminho do arquivo sozinho não é um comando. A tabela guarda apenas tipo,
+          setor e hora, nunca dado de paciente, e a contagem passa a valer do momento em que for
+          criada.
         </p>
       </CardContent>
     </Card>
