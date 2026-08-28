@@ -14,8 +14,15 @@ create table if not exists public.eventos (
   -- 'acesso' ou o tipo do documento: evolucao, prescricao, receita, solicitacao
   tipo text not null,
   setor text,
+  -- De qual endereço a pessoa entrou: contingenciauticsv.com.br e os outros.
+  -- É o que responde "quanto cada setor usou" sem depender do Cloudflare, que
+  -- conta visitante por IP e enxerga o hospital inteiro como uma pessoa só.
+  dominio text,
   criado_em timestamptz not null default now()
 );
+
+-- Para quem criou a tabela antes desta coluna existir.
+alter table public.eventos add column if not exists dominio text;
 
 create index if not exists eventos_criado_em on public.eventos (criado_em);
 

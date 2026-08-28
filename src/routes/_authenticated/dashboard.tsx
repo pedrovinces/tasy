@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { setoresDoDominio } from "@/lib/dominios";
 import { listarEventos, type Evento } from "@/lib/eventos";
 import { formatarDataHora } from "@/lib/format";
 import { listarTodosPacientes } from "@/lib/pacientes";
@@ -201,15 +202,45 @@ function Painel() {
         )}
       </div>
 
-      {eventos !== null && documentos.length > 0 && (
-        <Barras
-          titulo="Documentos por setor"
-          vazio="Nenhum documento gerado ainda."
-          dados={contagemPorSetor(documentos)}
-        />
+      {eventos !== null && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {documentos.length > 0 && (
+            <Barras
+              titulo="Documentos por setor"
+              vazio="Nenhum documento gerado ainda."
+              dados={contagemPorSetor(documentos)}
+            />
+          )}
+          {eventos.length > 0 && (
+            <Barras
+              titulo="Uso por endereço de acesso"
+              vazio="Nenhum registro ainda."
+              dados={contagemPorDominio(eventos)}
+            />
+          )}
+        </div>
       )}
     </div>
   );
+}
+
+/*
+ * O endereço cru não diz nada de relance ("contingenciauticsv.com.br"), e é
+ * longo demais para a coluna do rótulo. Cada endereço já sabe a que unidade
+ * pertence — é isso que aparece, com o endereço principal identificado à parte.
+ */
+function nomeDoDominio(dominio: string | null | undefined): string {
+  if (!dominio) return "Sem registro";
+  const setores = setoresDoDominio(dominio);
+  if (setores && setores.length > 0) return setores.join(" · ");
+  return dominio.replace(/^www\./, "").replace(/\.com\.br$/, "");
+}
+
+function contagemPorDominio(eventos: readonly Evento[]): { rotulo: string; valor: number }[] {
+  const contagem = contarPorChave(eventos, (e) => nomeDoDominio(e.dominio));
+  return [...contagem.entries()]
+    .map(([rotulo, valor]) => ({ rotulo, valor }))
+    .sort((a, b) => b.valor - a.valor);
 }
 
 function contagemPorSetor(eventos: readonly Evento[]): { rotulo: string; valor: number }[] {

@@ -22,15 +22,21 @@ export interface Evento {
   tipo: string;
   setor: string | null;
   criado_em: string;
+  dominio?: string | null;
 }
 
 export function registrarEvento(tipo: TipoEvento, setor: string | null): void {
   // Sem await de propósito: quem chama segue adiante na mesma hora. O catch
   // vazio cobre os dois casos previstos — a tabela ainda não criada e a rede do
   // hospital oscilando —, e nenhum deles interessa a quem está atendendo.
+  const dominio = typeof window === "undefined" ? null : window.location.hostname;
   void (async () => {
     try {
-      await banco.from("eventos").insert({ tipo, setor });
+      const { error } = await banco.from("eventos").insert({ tipo, setor, dominio });
+      // A coluna `dominio` chegou depois da tabela. Se ela ainda não existir no
+      // banco, o registro vai sem — melhor perder o endereço do que perder a
+      // contagem inteira até alguém rodar o alter table.
+      if (error) await banco.from("eventos").insert({ tipo, setor });
     } catch {
       // Silêncio de propósito.
     }
@@ -46,7 +52,7 @@ export function registrarEvento(tipo: TipoEvento, setor: string | null): void {
 export async function listarEventos(): Promise<Evento[] | null> {
   const { data, error } = await banco
     .from("eventos")
-    .select("tipo, setor, criado_em")
+    .select("*")
     .order("criado_em", { ascending: true });
   if (error) {
     console.error("[eventos] listar falhou", { code: error.code, message: error.message });
