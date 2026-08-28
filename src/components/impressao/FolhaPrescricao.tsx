@@ -1,7 +1,13 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
 import "@/print/impressao.css";
-import { calcularIdade, formatarData, formatarDataHora, formatarHora } from "@/lib/format";
+import {
+  calcularIdade,
+  formatarData,
+  formatarDataHora,
+  formatarHora,
+  formatarLeito,
+} from "@/lib/format";
 import type { Paciente, PrescricaoItemInput } from "@/lib/schemas";
 
 // Folha de prescrição em paisagem, espelhando o formulário oficial em papel:
@@ -204,7 +210,7 @@ export function FolhaPrescricao({ paciente, dataHoraIso, alergias, itens }: Folh
                 </div>
                 <div className="id-linha">
                   <span className="id-rotulo">Leito:</span>
-                  <span className="id-valor id-curto">{paciente.leito}</span>
+                  <span className="id-valor id-curto">{formatarLeito(paciente.leito)}</span>
                   <span className="id-rotulo">Unidade de origem:</span>
                   <span className="id-valor">{paciente.setor}</span>
                 </div>

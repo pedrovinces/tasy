@@ -47,3 +47,11 @@ export function agoraParaInput(): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+// O leito não é obrigatório. Onde ele aparece sozinho — coluna da listagem,
+// tarja do papel timbrado — o travessão marca o vazio de propósito: espaço em
+// branco pareceria falha de carregamento, e no papel a tarja preta encolheria
+// a ponto de sumir.
+export function formatarLeito(leito: string): string {
+  return leito.trim() || "—";
+}

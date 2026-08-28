@@ -1,7 +1,7 @@
 import { Children, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import "@/print/impressao.css";
-import { calcularIdade, formatarData, formatarDataHora } from "@/lib/format";
+import { calcularIdade, formatarData, formatarDataHora, formatarLeito } from "@/lib/format";
 import type { Paciente } from "@/lib/schemas";
 
 interface FolhaA4Props {
@@ -205,7 +205,7 @@ export function FolhaA4({ paciente, titulo, dataHora, children }: FolhaA4Props) 
                 </div>
                 <div className="id-linha">
                   <span className="id-rotulo">Leito:</span>
-                  <span className="id-valor id-curto">{paciente.leito}</span>
+                  <span className="id-valor id-curto">{formatarLeito(paciente.leito)}</span>
                 </div>
                 <div className="id-linha">
                   <span className="id-rotulo">Setor:</span>

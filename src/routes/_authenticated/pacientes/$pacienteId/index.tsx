@@ -166,7 +166,8 @@ function FichaPaciente() {
               </p>
               <CardTitle className="mt-0.5 text-xl">{paciente.nome_completo}</CardTitle>
               <p className="mt-1 text-sm text-background/70">
-                Leito {paciente.leito} · {paciente.setor}
+                {paciente.leito ? `Leito ${paciente.leito} · ` : ""}
+                {paciente.setor}
               </p>
             </div>
           </div>
@@ -235,13 +236,12 @@ function FichaPaciente() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label htmlFor="edit-leito">Leito</Label>
+                    <Label htmlFor="edit-leito">Leito (opcional)</Label>
                     <Input
                       id="edit-leito"
                       className="uppercase"
                       value={form.leito}
                       onChange={(e) => setForm({ ...form, leito: caixaAlta(e.target.value) })}
-                      required
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -284,7 +284,9 @@ function FichaPaciente() {
                     ? null
                     : `${duplicata.outro.nome_completo} — nascimento ${formatarData(
                         duplicata.outro.data_nascimento,
-                      )} — já está em ${duplicata.outro.setor}, leito ${duplicata.outro.leito}. Mesmo nome e mesma data de nascimento: pode ser a mesma pessoa em dois cadastros.`}
+                      )} — já está em ${duplicata.outro.setor}${
+                        duplicata.outro.leito ? `, leito ${duplicata.outro.leito}` : ""
+                      }. Mesmo nome e mesma data de nascimento: pode ser a mesma pessoa em dois cadastros.`}
                 </DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-2">
