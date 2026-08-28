@@ -136,11 +136,15 @@
   text-align-last: left;
 }
 
-.folha-linha.fim-de-paragrafo {
-  margin-bottom: 3mm;
-}
-
-.folha-corpo p {
+/*
+ * O corpo sai no papel exatamente como foi digitado: uma linha embaixo da
+ * outra, e linha em branco só onde a pessoa apertou Enter duas vezes. Esta
+ * regra vale para os parágrafos avulsos das outras folhas (o "outros" da
+ * solicitação de exames); as linhas do texto corrido ficam de fora, senão os
+ * 3mm entrariam entre TODAS elas — o que engordava a evolução em mais de
+ * metade e multiplicava as folhas.
+ */
+.folha-corpo p:not(.folha-linha) {
   margin: 0 0 3mm;
   white-space: pre-wrap;
 }
