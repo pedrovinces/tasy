@@ -41,7 +41,6 @@ const ICONES: Partial<Record<Setor, LucideIcon>> = {
   "UI II": BedDouble,
   "UI III": BedDouble,
   "UTI Geral": Activity,
-  "UTI Geral SS": Activity,
   USI: Stethoscope,
   UCI: HeartPulse,
   TMO: Bone,

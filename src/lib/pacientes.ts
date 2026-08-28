@@ -12,7 +12,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { mesmaPessoa } from "./identificacao";
 import { pacienteSchema, type Paciente, type PacienteInput } from "./schemas";
-import { SETORES } from "./setores";
+import { normalizarSetor, SETORES } from "./setores";
 import { maiusculas } from "./texto";
 
 const idSchema = z.string().uuid();
@@ -36,16 +36,22 @@ const localSchema = z.object({
   setor: z.enum(SETORES, { message: "Selecione o setor" }),
 });
 
-// A identificação sobe para caixa alta também na saída, não só na gravação:
-// quem foi cadastrado antes desta regra — ou inserido direto no banco — aparece
-// igual a todo mundo, na lista, na ficha e no papel. Sexo e setor ficam de
-// fora: são listas fechadas, e "UTI GERAL" não bateria com o setor escolhido.
-function comIdentificacaoEmCaixaAlta(paciente: Paciente): Paciente {
+// Duas correções aplicadas na saída, para cadastro antigo aparecer igual ao
+// novo sem precisar ser refeito à mão:
+//
+// A identificação sobe para caixa alta — sexo fica de fora, que é lista
+// fechada, e caixa alta não bateria com "Feminino".
+//
+// O setor passa pela tradução de nomes antigos (a UTI Geral SS virou UTI
+// Geral): a listagem filtra por igualdade exata, então sem isso o paciente
+// sumiria de todas as telas.
+function normalizarPaciente(paciente: Paciente): Paciente {
   return {
     ...paciente,
     nome_completo: maiusculas(paciente.nome_completo),
     filiacao: maiusculas(paciente.filiacao),
     leito: maiusculas(paciente.leito),
+    setor: normalizarSetor(paciente.setor),
   };
 }
 
@@ -56,7 +62,7 @@ export async function listarPacientes(): Promise<Paciente[]> {
     .eq("ativo", true)
     .order("leito", { ascending: true });
   if (error) throw falha("listar", error, "Não foi possível carregar os pacientes.");
-  return ((data ?? []) as Paciente[]).map(comIdentificacaoEmCaixaAlta);
+  return ((data ?? []) as Paciente[]).map(normalizarPaciente);
 }
 
 export async function obterPaciente(id: string): Promise<Paciente | null> {
@@ -67,7 +73,7 @@ export async function obterPaciente(id: string): Promise<Paciente | null> {
     .eq("id", pacienteId)
     .maybeSingle();
   if (error) throw falha("obter", error, "Não foi possível carregar o paciente.");
-  return data ? comIdentificacaoEmCaixaAlta(data as Paciente) : null;
+  return data ? normalizarPaciente(data as Paciente) : null;
 }
 
 export async function criarPaciente(input: PacienteInput): Promise<{ id: string }> {
@@ -107,7 +113,7 @@ export async function procurarMesmaPessoa(
     .eq("data_nascimento", identidade.data_nascimento);
   if (error)
     throw falha("procurar mesma pessoa", error, "Não foi possível verificar cadastros repetidos.");
-  const candidatos = ((data ?? []) as Paciente[]).map(comIdentificacaoEmCaixaAlta);
+  const candidatos = ((data ?? []) as Paciente[]).map(normalizarPaciente);
   return candidatos.find((p) => p.id !== ignorarId && mesmaPessoa(p, identidade)) ?? null;
 }
 

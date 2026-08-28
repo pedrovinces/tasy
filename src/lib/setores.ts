@@ -9,11 +9,23 @@ export const SETORES = [
   "TMO",
   "USI",
   "UTI Geral",
-  "UTI Geral SS",
   "UCI",
 ] as const;
 
 export type Setor = (typeof SETORES)[number];
+
+// A UTI Geral SS deixou de ser setor à parte: é a mesma UTI Geral, com outros
+// leitos. Cadastro feito antes disso continua no banco com o nome antigo, e a
+// listagem filtra por igualdade exata — sem esta tradução o paciente sumiria
+// de todas as telas. O banco vai sendo corrigido conforme cada cadastro é
+// salvo; a limpeza de uma vez está em supabase/seeds/unificar-uti-geral.sql.
+const RENOMEADOS: Record<string, Setor> = {
+  "UTI Geral SS": "UTI Geral",
+};
+
+export function normalizarSetor(setor: string): string {
+  return RENOMEADOS[setor] ?? setor;
+}
 
 // A Emergência tem botão próprio no topo da tela de escolha, separado das
 // unidades de internação. Fora dessa tela ela é um setor como qualquer outro:
