@@ -35,9 +35,9 @@ function Index() {
   // conexão lenta, que é a do celular no plantão.
   useEffect(() => {
     let ativo = true;
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }) => {
       if (!ativo) return;
-      void navigate({ to: data.user ? "/pacientes" : "/login", replace: true });
+      void navigate({ to: data.session ? "/pacientes" : "/login", replace: true });
     });
     return () => {
       ativo = false;

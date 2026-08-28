@@ -18,9 +18,15 @@ export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
     // Antes de qualquer coisa: passado o prazo, nem a sessão vale mais.
     if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login" });
-    return { user: data.user };
+    // getSession lê a sessão guardada no navegador e só vai à rede quando o
+    // token expirou. O getUser que estava aqui ia à rede a CADA navegação: no
+    // Wi-Fi do hospital, uma chamada que falhasse mandava de volta para a
+    // senha, com a sessão intacta no aparelho. Quem barra acesso de verdade é
+    // o RLS no banco, a cada consulta; esta guarda é só para não abrir uma
+    // tela vazia para quem nunca entrou.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) throw redirect({ to: "/login" });
+    return { user: data.session.user };
   },
   component: LayoutAutenticado,
 });
