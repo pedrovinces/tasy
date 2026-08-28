@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { calcularIdade, formatarData } from "@/lib/format";
+import { calcularIdade, formatarData, formatarLeito } from "@/lib/format";
 import { correspondeBusca, mesmaPessoa, palavrasDaBusca } from "@/lib/identificacao";
 import {
   atualizarLocalPaciente,
@@ -161,10 +161,6 @@ function ListaPacientes() {
   async function trazerParaCa() {
     if (!transferencia || !setorAtual) return;
     const { paciente, leito } = transferencia;
-    if (leito.trim().length === 0) {
-      toast.error("Informe o leito.");
-      return;
-    }
     setSalvando(true);
     try {
       await atualizarLocalPaciente({ id: paciente.id, leito, setor: setorAtual });
@@ -265,13 +261,12 @@ function ListaPacientes() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="leito">Leito</Label>
+                  <Label htmlFor="leito">Leito (opcional)</Label>
                   <Input
                     id="leito"
                     className="uppercase"
                     value={form.leito}
                     onChange={(e) => setForm({ ...form, leito: caixaAlta(e.target.value) })}
-                    required
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -345,7 +340,7 @@ function ListaPacientes() {
                     })
                   }
                 >
-                  <TableCell className="font-medium">{p.leito}</TableCell>
+                  <TableCell className="font-medium">{formatarLeito(p.leito)}</TableCell>
                   <TableCell>{p.nome_completo}</TableCell>
                   <TableCell>{formatarData(p.data_nascimento)}</TableCell>
                   <TableCell>{calcularIdade(p.data_nascimento)}</TableCell>
@@ -398,7 +393,8 @@ function ListaPacientes() {
                 <div>
                   <p className="font-medium">{p.nome_completo}</p>
                   <p className="text-sm text-muted-foreground">
-                    {p.setor} · leito {p.leito} · {calcularIdade(p.data_nascimento)}
+                    {p.setor}
+                    {p.leito ? ` · leito ${p.leito}` : ""} · {calcularIdade(p.data_nascimento)}
                   </p>
                 </div>
                 <Button
@@ -430,12 +426,18 @@ function ListaPacientes() {
               {transferencia === null
                 ? null
                 : transferencia.paciente.setor === setorAtual
-                  ? `${transferencia.paciente.nome_completo} já está nesta lista, no leito ${transferencia.paciente.leito}.`
-                  : `${transferencia.paciente.nome_completo} está em ${transferencia.paciente.setor}, leito ${transferencia.paciente.leito}. Trazer para ${setorAtual} muda o setor e o leito do mesmo cadastro — não cria um segundo.`}
+                  ? `${transferencia.paciente.nome_completo} já está nesta lista${
+                      transferencia.paciente.leito
+                        ? `, no leito ${transferencia.paciente.leito}`
+                        : ""
+                    }.`
+                  : `${transferencia.paciente.nome_completo} está em ${transferencia.paciente.setor}${
+                      transferencia.paciente.leito ? `, leito ${transferencia.paciente.leito}` : ""
+                    }. Trazer para ${setorAtual} muda o setor e o leito do mesmo cadastro — não cria um segundo.`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">
-            <Label htmlFor="leito-transferencia">Leito em {setorAtual}</Label>
+            <Label htmlFor="leito-transferencia">Leito em {setorAtual} (opcional)</Label>
             <Input
               id="leito-transferencia"
               className="uppercase"
@@ -445,7 +447,6 @@ function ListaPacientes() {
                   atual === null ? atual : { ...atual, leito: caixaAlta(e.target.value) },
                 )
               }
-              required
             />
           </div>
           <div className="flex flex-col gap-2">

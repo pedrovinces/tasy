@@ -43,12 +43,10 @@ export const pacienteSchema = z.object({
     .transform(maiusculas),
   data_nascimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data de nascimento inválida"),
   sexo: z.string().trim().min(1, "Informe o sexo").max(20, "Sexo muito longo"),
-  leito: z
-    .string()
-    .trim()
-    .min(1, "Informe o leito")
-    .max(20, "Leito muito longo")
-    .transform(maiusculas),
+  // O leito pode não estar definido na hora do cadastro: paciente recém-chegado,
+  // ou em trânsito entre unidades. Vazio é aceito; quando vem, sobe para caixa
+  // alta como o resto da identificação.
+  leito: z.string().trim().max(20, "Leito muito longo").transform(maiusculas),
   setor: z.enum(SETORES, { message: "Selecione o setor" }),
 });
 

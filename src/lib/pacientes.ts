@@ -32,7 +32,7 @@ function falha(operacao: string, erro: PostgrestError, mensagem: string): Error 
 
 const localSchema = z.object({
   id: idSchema,
-  leito: z.string().trim().min(1, "Informe o leito").max(20).transform(maiusculas),
+  leito: z.string().trim().max(20).transform(maiusculas),
   setor: z.enum(SETORES, { message: "Selecione o setor" }),
 });
 
