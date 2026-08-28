@@ -25,8 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { calcularIdade, formatarData } from "@/lib/format";
-import { atualizarPaciente, obterPaciente } from "@/lib/pacientes";
-import { pacienteSchema } from "@/lib/schemas";
+import { atualizarPaciente, obterPaciente, procurarMesmaPessoa } from "@/lib/pacientes";
+import { pacienteSchema, type Paciente, type PacienteInput } from "@/lib/schemas";
 import { SETORES } from "@/lib/setores";
 import { caixaAlta } from "@/lib/texto";
 
@@ -79,6 +79,10 @@ function FichaPaciente() {
     setor: "",
   });
   const [salvando, setSalvando] = useState(false);
+  // Outro cadastro da mesma pessoa, encontrado ao salvar a correção.
+  const [duplicata, setDuplicata] = useState<{ outro: Paciente; dados: PacienteInput } | null>(
+    null,
+  );
 
   if (!paciente) return <NaoEncontrado />;
 
@@ -104,10 +108,32 @@ function FichaPaciente() {
       toast.error(resultado.error.issues[0]?.message ?? "Verifique os campos.");
       return;
     }
+    // Corrigir o nome pode acabar apontando para alguém que já está
+    // cadastrado. O aviso é o mesmo do cadastro novo, e pela mesma regra:
+    // homônimo e com a mesma data de nascimento.
+    setSalvando(true);
+    let outro: Paciente | null = null;
+    try {
+      outro = await procurarMesmaPessoa(resultado.data, paciente!.id);
+    } catch {
+      // A verificação é conveniência, não guarda: se ela falhar, a correção
+      // segue. Dar errado de verdade é o próprio salvamento, logo abaixo.
+    } finally {
+      setSalvando(false);
+    }
+    if (outro) {
+      setDuplicata({ outro, dados: resultado.data });
+      return;
+    }
+    await gravarEdicao(resultado.data);
+  }
+
+  async function gravarEdicao(dados: PacienteInput) {
     setSalvando(true);
     try {
-      await atualizarPaciente({ id: paciente!.id, ...resultado.data });
+      await atualizarPaciente({ id: paciente!.id, ...dados });
       toast.success("Dados do paciente atualizados.");
+      setDuplicata(null);
       setEditAberto(false);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["paciente", pacienteId] }),
@@ -241,6 +267,54 @@ function FichaPaciente() {
                   {salvando ? "Salvando…" : "Salvar"}
                 </Button>
               </form>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog
+            open={duplicata !== null}
+            onOpenChange={(aberto) => {
+              if (!aberto) setDuplicata(null);
+            }}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Já existe outro cadastro dessa pessoa</DialogTitle>
+                <DialogDescription>
+                  {duplicata === null
+                    ? null
+                    : `${duplicata.outro.nome_completo} — nascimento ${formatarData(
+                        duplicata.outro.data_nascimento,
+                      )} — já está em ${duplicata.outro.setor}, leito ${duplicata.outro.leito}. Mesmo nome e mesma data de nascimento: pode ser a mesma pessoa em dois cadastros.`}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col gap-2">
+                {/* Voltar é o caminho mais provável: quase sempre foi o nome
+                    que saiu errado agora, não o cadastro que já existia. */}
+                <Button onClick={() => setDuplicata(null)} disabled={salvando}>
+                  Voltar e corrigir
+                </Button>
+                {duplicata === null ? null : (
+                  <Button asChild variant="outline">
+                    <Link
+                      to="/pacientes/$pacienteId"
+                      params={{ pacienteId: duplicata.outro.id }}
+                      onClick={() => setDuplicata(null)}
+                    >
+                      Abrir o outro cadastro
+                    </Link>
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  disabled={salvando}
+                  onClick={() => {
+                    const dados = duplicata?.dados;
+                    if (dados) void gravarEdicao(dados);
+                  }}
+                >
+                  {salvando ? "Salvando…" : "Salvar assim mesmo"}
+                </Button>
+              </div>
             </DialogContent>
           </Dialog>
         </CardHeader>

@@ -10,6 +10,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
+import { mesmaPessoa } from "./identificacao";
 import { pacienteSchema, type Paciente, type PacienteInput } from "./schemas";
 import { SETORES } from "./setores";
 import { maiusculas } from "./texto";
@@ -85,6 +86,29 @@ export async function criarPaciente(input: PacienteInput): Promise<{ id: string 
     .single();
   if (error) throw falha("criar", error, "Não foi possível cadastrar o paciente.");
   return { id: data.id as string };
+}
+
+/**
+ * Procura outro cadastro ativo da mesma pessoa — mesmo nome e mesma data de
+ * nascimento. `ignorarId` tira da busca quem está sendo editado, senão o
+ * paciente acharia a si mesmo.
+ *
+ * A consulta é feita na hora, e não sobre a lista já carregada, porque a
+ * correção pode acontecer muito depois de a tela ter aberto.
+ */
+export async function procurarMesmaPessoa(
+  identidade: { nome_completo: string; data_nascimento: string },
+  ignorarId?: string,
+): Promise<Paciente | null> {
+  const { data, error } = await supabase
+    .from("pacientes")
+    .select("*")
+    .eq("ativo", true)
+    .eq("data_nascimento", identidade.data_nascimento);
+  if (error)
+    throw falha("procurar mesma pessoa", error, "Não foi possível verificar cadastros repetidos.");
+  const candidatos = ((data ?? []) as Paciente[]).map(comIdentificacaoEmCaixaAlta);
+  return candidatos.find((p) => p.id !== ignorarId && mesmaPessoa(p, identidade)) ?? null;
 }
 
 // Correção de cadastro: nome digitado errado na pressa, data de nascimento
