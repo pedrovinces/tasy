@@ -11,7 +11,7 @@ import type { Setor } from "./setores";
 const SETORES_POR_DOMINIO: Record<string, readonly Setor[]> = {
   "contingenciaemergcsv.com.br": ["Emergência"],
   "contingenciauicsv.com.br": ["UI I", "UI II", "UI III"],
-  "contingenciauticsv.com.br": ["UTI Geral", "UTI Geral SS"],
+  "contingenciauticsv.com.br": ["UTI Geral"],
   "contingenciausicsv.com.br": ["USI"],
   "contingenciaucicsv.com.br": ["UCI"],
   "contingenciatmocsv.com.br": ["TMO"],

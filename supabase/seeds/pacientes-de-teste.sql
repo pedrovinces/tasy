@@ -1,5 +1,7 @@
 -- Um paciente de teste por setor, para conferir a listagem, a busca e a
--- impressão de cada unidade antes do plantão.
+-- impressão de cada unidade antes do plantão. São nove linhas para oito
+-- setores: os dois da UTI Geral cobrem os leitos comuns e os do SS, que
+-- deixou de ser setor à parte.
 --
 -- Como usar: painel do Supabase → SQL Editor → colar → Run.
 --
@@ -20,7 +22,7 @@ values
   ('TESTE TMO',           'TESTE FILIAÇÃO', '1972-02-28', 'Feminino',  'TMO 01',    'TMO',          true),
   ('TESTE USI',           'TESTE FILIAÇÃO', '1965-11-30', 'Masculino', 'USI 01',    'USI',          true),
   ('TESTE UTI GERAL',     'TESTE FILIAÇÃO', '1943-07-08', 'Feminino',  'UTI 01',    'UTI Geral',    true),
-  ('TESTE UTI GERAL SS',  'TESTE FILIAÇÃO', '1958-04-22', 'Masculino', 'UTI SS 01', 'UTI Geral SS', true),
+  ('TESTE UTI GERAL SS',  'TESTE FILIAÇÃO', '1958-04-22', 'Masculino', 'UTI SS 01', 'UTI Geral',    true),
   ('TESTE UCI',           'TESTE FILIAÇÃO', '1980-12-03', 'Feminino',  'UCI 01',    'UCI',          true);
 
 -- Conferência: nove linhas, uma por setor.
