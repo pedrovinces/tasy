@@ -25,7 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { calcularIdade, formatarData } from "@/lib/format";
-import { atualizarLocalPaciente, obterPaciente } from "@/lib/pacientes";
+import { atualizarPaciente, obterPaciente } from "@/lib/pacientes";
+import { pacienteSchema } from "@/lib/schemas";
 import { SETORES } from "@/lib/setores";
 import { caixaAlta } from "@/lib/texto";
 
@@ -69,31 +70,51 @@ function FichaPaciente() {
   const { data: paciente } = useSuspenseQuery(pacienteQuery(pacienteId));
   const queryClient = useQueryClient();
   const [editAberto, setEditAberto] = useState(false);
-  const [leito, setLeito] = useState("");
-  const [setor, setSetor] = useState("");
+  const [form, setForm] = useState({
+    nome_completo: "",
+    filiacao: "",
+    data_nascimento: "",
+    sexo: "",
+    leito: "",
+    setor: "",
+  });
   const [salvando, setSalvando] = useState(false);
 
   if (!paciente) return <NaoEncontrado />;
 
+  // O formulário é semeado a cada abertura, e não uma vez só: assim edições
+  // sucessivas partem sempre do que está gravado, e um cancelamento não deixa
+  // resto para a próxima vez.
   function abrirEdicao() {
-    setLeito(paciente!.leito);
-    setSetor(paciente!.setor);
+    setForm({
+      nome_completo: paciente!.nome_completo,
+      filiacao: paciente!.filiacao,
+      data_nascimento: paciente!.data_nascimento,
+      sexo: paciente!.sexo,
+      leito: paciente!.leito,
+      setor: paciente!.setor,
+    });
     setEditAberto(true);
   }
 
-  async function salvarLocal(evento: FormEvent) {
+  async function salvarEdicao(evento: FormEvent) {
     evento.preventDefault();
+    const resultado = pacienteSchema.safeParse(form);
+    if (!resultado.success) {
+      toast.error(resultado.error.issues[0]?.message ?? "Verifique os campos.");
+      return;
+    }
     setSalvando(true);
     try {
-      await atualizarLocalPaciente({ id: paciente!.id, leito, setor });
-      toast.success("Local do paciente atualizado.");
+      await atualizarPaciente({ id: paciente!.id, ...resultado.data });
+      toast.success("Dados do paciente atualizados.");
       setEditAberto(false);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["paciente", pacienteId] }),
         queryClient.invalidateQueries({ queryKey: ["pacientes"] }),
       ]);
     } catch {
-      toast.error("Não foi possível atualizar o local do paciente.");
+      toast.error("Não foi possível salvar as alterações.");
     } finally {
       setSalvando(false);
     }
@@ -127,41 +148,94 @@ function FichaPaciente() {
             <DialogTrigger asChild>
               <Button variant="outline" className={BOTAO_NO_ESCURO} onClick={abrirEdicao}>
                 <Pencil className="mr-2 h-4 w-4" />
-                Editar local
+                Editar
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Editar local do paciente</DialogTitle>
+                <DialogTitle>Editar paciente</DialogTitle>
                 <DialogDescription>
-                  Ao trocar o setor, o paciente passa a aparecer na listagem do novo setor.
+                  Corrija o que estiver errado no cadastro. Ao trocar o setor, o paciente passa a
+                  aparecer na listagem do novo setor.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={salvarLocal} className="space-y-3">
+              <form onSubmit={salvarEdicao} className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-leito">Leito</Label>
+                  <Label htmlFor="edit-nome">Nome completo</Label>
                   <Input
-                    id="edit-leito"
+                    id="edit-nome"
                     className="uppercase"
-                    value={leito}
-                    onChange={(e) => setLeito(caixaAlta(e.target.value))}
+                    value={form.nome_completo}
+                    onChange={(e) => setForm({ ...form, nome_completo: caixaAlta(e.target.value) })}
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Setor</Label>
-                  <Select value={setor} onValueChange={setSetor}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SETORES.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="edit-filiacao">Filiação</Label>
+                  <Input
+                    id="edit-filiacao"
+                    className="uppercase"
+                    value={form.filiacao}
+                    onChange={(e) => setForm({ ...form, filiacao: caixaAlta(e.target.value) })}
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="edit-nascimento">Data de nascimento</Label>
+                    <Input
+                      id="edit-nascimento"
+                      type="date"
+                      value={form.data_nascimento}
+                      onChange={(e) => setForm({ ...form, data_nascimento: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Sexo</Label>
+                    <Select
+                      value={form.sexo}
+                      onValueChange={(valor) => setForm({ ...form, sexo: valor })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Feminino">Feminino</SelectItem>
+                        <SelectItem value="Masculino">Masculino</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="edit-leito">Leito</Label>
+                    <Input
+                      id="edit-leito"
+                      className="uppercase"
+                      value={form.leito}
+                      onChange={(e) => setForm({ ...form, leito: caixaAlta(e.target.value) })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Setor</Label>
+                    <Select
+                      value={form.setor}
+                      onValueChange={(valor) => setForm({ ...form, setor: valor })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SETORES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full" disabled={salvando}>
                   {salvando ? "Salvando…" : "Salvar"}

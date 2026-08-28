@@ -87,6 +87,28 @@ export async function criarPaciente(input: PacienteInput): Promise<{ id: string 
   return { id: data.id as string };
 }
 
+// Correção de cadastro: nome digitado errado na pressa, data de nascimento
+// trocada, filiação incompleta. Passa pelo mesmo schema do cadastro, então a
+// identificação também sobe para caixa alta aqui.
+export async function atualizarPaciente(input: { id: string } & PacienteInput) {
+  const id = idSchema.parse(input.id);
+  const paciente = pacienteSchema.parse(input);
+  const { error } = await supabase
+    .from("pacientes")
+    .update({
+      nome_completo: paciente.nome_completo,
+      filiacao: paciente.filiacao,
+      data_nascimento: paciente.data_nascimento,
+      sexo: paciente.sexo,
+      leito: paciente.leito,
+      setor: paciente.setor,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (error) throw falha("atualizar", error, "Não foi possível salvar as alterações.");
+  return { ok: true };
+}
+
 // `setor` chega como string livre do formulário; o zod é quem estreita para a
 // lista de setores válidos (e rejeita qualquer outro valor).
 export async function atualizarLocalPaciente(input: { id: string; leito: string; setor: string }) {
