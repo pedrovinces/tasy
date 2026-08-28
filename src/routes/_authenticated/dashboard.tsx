@@ -7,19 +7,15 @@ import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listarEventos, type Evento } from "@/lib/eventos";
+import { formatarDataHora } from "@/lib/format";
 import { listarTodosPacientes } from "@/lib/pacientes";
 import { SETORES } from "@/lib/setores";
-
-// A janela do painel: as últimas 24 horas, que cobrem o plantão inteiro sem
-// depender de nenhuma data fixa no código.
-const HORAS = 24;
 
 const estatisticasQuery = queryOptions({
   queryKey: ["estatisticas"],
   queryFn: async () => {
-    const desde = new Date(Date.now() - HORAS * 3600_000);
-    const [pacientes, eventos] = await Promise.all([listarTodosPacientes(), listarEventos(desde)]);
-    return { pacientes, eventos, desde };
+    const [pacientes, eventos] = await Promise.all([listarTodosPacientes(), listarEventos()]);
+    return { pacientes, eventos };
   },
   // Os números envelhecem rápido durante o plantão.
   staleTime: 30_000,
@@ -95,10 +91,9 @@ function Painel() {
   const queryClient = useQueryClient();
   const [atualizando, setAtualizando] = useState(false);
 
-  const { pacientes, eventos, desde } = data;
+  const { pacientes, eventos } = data;
   const ativos = pacientes.filter((p) => p.ativo);
   const removidos = pacientes.length - ativos.length;
-  const naJanela = pacientes.filter((p) => new Date(p.created_at) >= desde);
   const ultimaAlteracao = pacientes.reduce<string | null>(
     (maior, p) => (maior === null || p.updated_at > maior ? p.updated_at : maior),
     null,
@@ -106,6 +101,14 @@ function Painel() {
 
   const documentos = eventos?.filter((e) => e.tipo !== "acesso") ?? [];
   const acessos = eventos?.filter((e) => e.tipo === "acesso") ?? [];
+
+  // Início da contagem: o registro mais antigo que existe, seja um paciente ou
+  // um evento. É o que define o eixo dos gráficos por hora — o painel mostra a
+  // contingência inteira, não as últimas N horas.
+  const primeiroRegistro = [
+    ...pacientes.map((p) => p.created_at),
+    ...(eventos ?? []).map((e) => e.criado_em),
+  ].reduce<string | null>((menor, i) => (menor === null || i < menor ? i : menor), null);
 
   async function atualizar() {
     setAtualizando(true);
@@ -121,7 +124,11 @@ function Painel() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Painel</h1>
-          <p className="text-sm text-muted-foreground">Uso do sistema nas últimas {HORAS} horas.</p>
+          <p className="text-sm text-muted-foreground">
+            {primeiroRegistro
+              ? `Tudo desde o primeiro registro, em ${formatarDataHora(primeiroRegistro)}.`
+              : "Nenhum registro ainda."}
+          </p>
         </div>
         <Button variant="outline" onClick={atualizar} disabled={atualizando}>
           <RefreshCw className={`mr-2 h-4 w-4 ${atualizando ? "animate-spin" : ""}`} />
@@ -134,12 +141,12 @@ function Painel() {
           icone={Users}
           rotulo="Pacientes na lista"
           valor={ativos.length}
-          detalhe={removidos > 0 ? `${removidos} removidos` : "nenhum removido"}
+          detalhe={removidos > 0 ? `${removidos} removidos da lista` : "nenhum removido"}
         />
         <Numero
           icone={UserPlus}
-          rotulo="Cadastrados na janela"
-          valor={naJanela.length}
+          rotulo="Cadastrados no total"
+          valor={pacientes.length}
           detalhe={`última alteração ${haQuantoTempo(ultimaAlteracao)}`}
         />
         <Numero
@@ -182,13 +189,13 @@ function Painel() {
       <div className="grid gap-4 lg:grid-cols-2">
         <PorHora
           titulo="Pacientes cadastrados por hora"
-          desde={desde}
+          desde={primeiroRegistro}
           instantes={pacientes.map((p) => p.created_at)}
         />
         {eventos !== null && (
           <PorHora
             titulo="Documentos gerados por hora"
-            desde={desde}
+            desde={primeiroRegistro}
             instantes={documentos.map((e) => e.criado_em)}
           />
         )}
@@ -307,10 +314,22 @@ function PorHora({
   instantes,
 }: {
   titulo: string;
-  desde: Date;
+  desde: string | null;
   instantes: readonly string[];
 }) {
-  const primeira = inicioDaHora(desde);
+  if (desde === null) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">{titulo}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="py-6 text-center text-sm text-muted-foreground">Nada registrado ainda.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  const primeira = inicioDaHora(new Date(desde));
   const quantas = Math.floor((Date.now() - primeira.getTime()) / 3600_000) + 1;
   const baldes = Array.from({ length: quantas }, (_, i) => {
     const hora = new Date(primeira.getTime() + i * 3600_000);
@@ -333,9 +352,7 @@ function PorHora({
       </CardHeader>
       <CardContent>
         {total === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            Nada registrado nas últimas {HORAS} horas.
-          </p>
+          <p className="py-6 text-center text-sm text-muted-foreground">Nada registrado ainda.</p>
         ) : (
           <>
             <div className="flex h-28 items-end gap-0.5">

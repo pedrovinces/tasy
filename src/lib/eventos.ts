@@ -38,15 +38,15 @@ export function registrarEvento(tipo: TipoEvento, setor: string | null): void {
 }
 
 /**
- * Devolve os eventos da janela de contingência, ou `null` quando a tabela ainda
- * não existe no banco — o painel usa isso para explicar o que falta, em vez de
- * mostrar zero como se ninguém tivesse usado o sistema.
+ * Todos os eventos, do primeiro ao último — o painel mostra a contingência
+ * inteira, não uma janela móvel. Devolve `null` quando a tabela ainda não existe
+ * no banco: o painel usa isso para explicar o que falta, em vez de mostrar zero
+ * como se ninguém tivesse usado o sistema.
  */
-export async function listarEventos(desde: Date): Promise<Evento[] | null> {
+export async function listarEventos(): Promise<Evento[] | null> {
   const { data, error } = await banco
     .from("eventos")
     .select("tipo, setor, criado_em")
-    .gte("criado_em", desde.toISOString())
     .order("criado_em", { ascending: true });
   if (error) {
     console.error("[eventos] listar falhou", { code: error.code, message: error.message });
