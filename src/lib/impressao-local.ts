@@ -1,4 +1,6 @@
+import { registrarEvento } from "./eventos";
 import type { Paciente, PrescricaoItemInput, ReceitaItemInput } from "./schemas";
+import { obterSetorSelecionado } from "./setores";
 
 // ---------------------------------------------------------------------------
 // Documentos clínicos NÃO são salvos na nuvem nem em qualquer banco de dados.
@@ -61,6 +63,9 @@ function novoIdDocumento(): string {
 export function guardarDocumentoImpressao(documento: DocumentoImpressao): string {
   const id = novoIdDocumento();
   window.sessionStorage.setItem(PREFIXO + id, JSON.stringify(documento));
+  // Os quatro tipos de documento passam por aqui — é o lugar de contar quantos
+  // foram gerados. Vai só o tipo e o setor; o conteúdo não sai desta sessão.
+  registrarEvento(documento.tipo, obterSetorSelecionado());
   return id;
 }
 

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { sistemaEncerrado } from "@/lib/encerramento";
+import { registrarEvento } from "@/lib/eventos";
 
 // Conta universal da unidade. Como toda a equipe entra pela mesma conta, a
 // tela pede só a senha: o usuário é fixo aqui e vira o e-mail sintético que o
@@ -64,6 +65,7 @@ function AuthPage() {
       toast.error("Senha inválida.");
       return;
     }
+    registrarEvento("acesso", null);
     void navigate({ to: "/setores" });
   }
 
