@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Printer } from "lucide-react";
+import { useEffect } from "react";
 
 import {
   AlertDialog,
@@ -13,6 +14,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { registrarEvento, type TipoDocumento } from "@/lib/eventos";
+import { obterSetorSelecionado } from "@/lib/setores";
 
 // Barra de ações das quatro folhas de impressão. Some no papel: a classe
 // `acoes-impressao` é escondida na mídia de impressão.
@@ -22,14 +25,29 @@ import { Button } from "@/components/ui/button";
 // confirmação: quem clicou na seta sem ter impresso perde o que escreveu.
 interface AcoesImpressaoProps {
   pacienteId: string;
+  // Qual das quatro folhas é esta, para a contagem de impressões.
+  tipo: TipoDocumento;
   // Nome do documento em português, com artigo — "A evolução", "A receita".
   // Os quatro são femininos e a frase do aviso concorda com isso; um nome
   // masculino aqui exigiria reescrevê-la.
   documento: string;
 }
 
-export function AcoesImpressao({ pacienteId, documento }: AcoesImpressaoProps) {
+export function AcoesImpressao({ pacienteId, tipo, documento }: AcoesImpressaoProps) {
   const navigate = useNavigate();
+
+  // `afterprint` é o mais perto de "foi impresso" que o navegador oferece: ele
+  // dispara quando a caixa de impressão fecha, tendo saído papel ou não. Serve
+  // para separar quem preencheu de quem chegou a mandar imprimir, e conta a
+  // reimpressão da mesma folha — o que a contagem de documentos gerados não vê.
+  //
+  // Fica aqui, e não nas quatro rotas, porque este componente é o único ponto
+  // comum a todas elas.
+  useEffect(() => {
+    const registrar = () => registrarEvento(`impressao_${tipo}`, obterSetorSelecionado());
+    window.addEventListener("afterprint", registrar);
+    return () => window.removeEventListener("afterprint", registrar);
+  }, [tipo]);
 
   return (
     <div className="acoes-impressao mb-4 flex items-center justify-between">

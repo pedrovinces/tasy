@@ -85,7 +85,7 @@ function ImprimirPrescricao() {
        */}
       {!girar && <style>{"@page { size: A4 landscape; margin: 0; }"}</style>}
 
-      <AcoesImpressao pacienteId={paciente.id} documento="A prescrição" />
+      <AcoesImpressao pacienteId={paciente.id} tipo="prescricao" documento="A prescrição" />
 
       <FolhaPrescricao
         paciente={paciente}

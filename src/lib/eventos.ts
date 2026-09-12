@@ -16,7 +16,24 @@ import { supabase } from "@/integrations/supabase/client";
 // tipagem de esquema; são duas consultas simples, cobertas por teste.
 const banco = supabase as unknown as SupabaseClient;
 
-export type TipoEvento = "acesso" | "evolucao" | "prescricao" | "receita" | "solicitacao";
+// Os tipos são fechados de propósito: `tipo` é texto livre no banco, e uma
+// lista explícita evita que um erro de digitação vire uma categoria nova e
+// silenciosa no painel.
+export const TIPOS_DE_DOCUMENTO = ["evolucao", "prescricao", "receita", "solicitacao"] as const;
+
+export type TipoDocumento = (typeof TIPOS_DE_DOCUMENTO)[number];
+
+export type TipoEvento =
+  | "acesso"
+  | TipoDocumento
+  // Documento gerado é o que foi montado na tela; impressão é a caixa de
+  // impressão tendo sido aberta e fechada. Contar os dois separa quem preencheu
+  // de quem levou ao papel — e conta a reimpressão da mesma folha.
+  | `impressao_${TipoDocumento}`
+  | "paciente_criado"
+  | "paciente_editado"
+  | "paciente_removido"
+  | "paciente_trazido";
 
 export interface Evento {
   tipo: string;
@@ -41,6 +58,14 @@ export function registrarEvento(tipo: TipoEvento, setor: string | null): void {
       // Silêncio de propósito.
     }
   })();
+}
+
+/** "impressao_receita" → "receita"; qualquer outro tipo devolve null. */
+export function documentoDaImpressao(tipo: string): TipoDocumento | null {
+  const nome = tipo.startsWith("impressao_") ? tipo.slice("impressao_".length) : null;
+  return (TIPOS_DE_DOCUMENTO as readonly string[]).includes(nome ?? "")
+    ? (nome as TipoDocumento)
+    : null;
 }
 
 /**
