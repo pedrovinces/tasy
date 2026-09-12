@@ -1,13 +1,18 @@
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity, FileText, RefreshCw, UserPlus, Users } from "lucide-react";
+import { Activity, FileText, Printer, RefreshCw, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 
 import { ErroRota, NaoEncontrado } from "@/components/ErroRota";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { setoresDoDominio } from "@/lib/dominios";
-import { listarEventos, type Evento } from "@/lib/eventos";
+import {
+  documentoDaImpressao,
+  listarEventos,
+  TIPOS_DE_DOCUMENTO,
+  type Evento,
+} from "@/lib/eventos";
 import { formatarDataHora } from "@/lib/format";
 import { listarTodosPacientes } from "@/lib/pacientes";
 import { SETORES } from "@/lib/setores";
@@ -47,7 +52,12 @@ const NOME_DO_TIPO: Record<string, string> = {
   solicitacao: "Solicitações de exames",
 };
 
-const TIPOS_DE_DOCUMENTO = Object.keys(NOME_DO_TIPO);
+const NOME_DO_MOVIMENTO: Record<string, string> = {
+  paciente_criado: "Cadastrados",
+  paciente_editado: "Dados corrigidos",
+  paciente_trazido: "Trazidos de outro setor",
+  paciente_removido: "Removidos da lista",
+};
 
 function inicioDaHora(instante: Date): Date {
   const hora = new Date(instante);
@@ -100,8 +110,14 @@ function Painel() {
     null,
   );
 
-  const documentos = eventos?.filter((e) => e.tipo !== "acesso") ?? [];
   const acessos = eventos?.filter((e) => e.tipo === "acesso") ?? [];
+  // Gerado é a folha montada na tela; impresso é a caixa de impressão tendo
+  // sido aberta. Os dois números juntos dizem quanto virou papel de verdade —
+  // e impressões acima de documentos significa reimpressão, não erro.
+  const documentos =
+    eventos?.filter((e) => (TIPOS_DE_DOCUMENTO as readonly string[]).includes(e.tipo)) ?? [];
+  const impressoes = eventos?.filter((e) => documentoDaImpressao(e.tipo) !== null) ?? [];
+  const movimento = eventos?.filter((e) => e.tipo in NOME_DO_MOVIMENTO) ?? [];
 
   // Início da contagem: o registro mais antigo que existe, seja um paciente ou
   // um evento. É o que define o eixo dos gráficos por hora — o painel mostra a
@@ -139,28 +155,28 @@ function Painel() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Numero
-          icone={Users}
-          rotulo="Pacientes na lista"
-          valor={ativos.length}
-          detalhe={removidos > 0 ? `${removidos} removidos da lista` : "nenhum removido"}
-        />
-        <Numero
-          icone={UserPlus}
-          rotulo="Cadastrados no total"
-          valor={pacientes.length}
-          detalhe={`última alteração ${haQuantoTempo(ultimaAlteracao)}`}
+          icone={Activity}
+          rotulo="Entradas com senha"
+          valor={eventos === null ? null : acessos.length}
+          detalhe={eventos === null ? "contagem não ligada" : "cada vez que alguém entrou"}
         />
         <Numero
           icone={FileText}
           rotulo="Documentos gerados"
           valor={eventos === null ? null : documentos.length}
-          detalhe={eventos === null ? "contagem não ligada" : "prontos para impressão"}
+          detalhe={eventos === null ? "contagem não ligada" : "folhas montadas na tela"}
         />
         <Numero
-          icone={Activity}
-          rotulo="Entradas com senha"
-          valor={eventos === null ? null : acessos.length}
-          detalhe={eventos === null ? "contagem não ligada" : "cada vez que alguém entrou"}
+          icone={Printer}
+          rotulo="Impressões"
+          valor={eventos === null ? null : impressoes.length}
+          detalhe={eventos === null ? "contagem não ligada" : "caixa de impressão aberta"}
+        />
+        <Numero
+          icone={Users}
+          rotulo="Pacientes na lista"
+          valor={ativos.length}
+          detalhe={`${pacientes.length} no total · última alteração ${haQuantoTempo(ultimaAlteracao)}`}
         />
       </div>
 
@@ -187,6 +203,29 @@ function Painel() {
         )}
       </div>
 
+      {eventos !== null && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Barras
+            titulo="Impressões por tipo"
+            vazio="Nenhuma impressão registrada ainda."
+            dados={TIPOS_DE_DOCUMENTO.map((tipo) => ({
+              rotulo: NOME_DO_TIPO[tipo] ?? tipo,
+              valor: impressoes.filter((e) => documentoDaImpressao(e.tipo) === tipo).length,
+            })).filter((linha) => linha.valor > 0)}
+          />
+          <Barras
+            titulo="Movimento de pacientes"
+            vazio="Nenhum movimento registrado ainda."
+            dados={Object.entries(NOME_DO_MOVIMENTO)
+              .map(([tipo, rotulo]) => ({
+                rotulo,
+                valor: movimento.filter((e) => e.tipo === tipo).length,
+              }))
+              .filter((linha) => linha.valor > 0)}
+          />
+        </div>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <PorHora
           titulo="Pacientes cadastrados por hora"
@@ -198,6 +237,23 @@ function Painel() {
             titulo="Documentos gerados por hora"
             desde={primeiroRegistro}
             instantes={documentos.map((e) => e.criado_em)}
+          />
+        )}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {eventos !== null && (
+          <PorHora
+            titulo="Impressões por hora"
+            desde={primeiroRegistro}
+            instantes={impressoes.map((e) => e.criado_em)}
+          />
+        )}
+        {eventos !== null && (
+          <PorHora
+            titulo="Entradas por hora"
+            desde={primeiroRegistro}
+            instantes={acessos.map((e) => e.criado_em)}
           />
         )}
       </div>

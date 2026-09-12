@@ -97,7 +97,11 @@ function ImprimirSolicitacao() {
 
   return (
     <div>
-      <AcoesImpressao pacienteId={paciente.id} documento="A solicitação de exames" />
+      <AcoesImpressao
+        pacienteId={paciente.id}
+        tipo="solicitacao"
+        documento="A solicitação de exames"
+      />
 
       {folhas.map((folha, indice) => (
         <div

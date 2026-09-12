@@ -92,7 +92,7 @@ function ImprimirReceita() {
 
   return (
     <div>
-      <AcoesImpressao pacienteId={paciente.id} documento="A receita" />
+      <AcoesImpressao pacienteId={paciente.id} tipo="receita" documento="A receita" />
 
       <FolhaA4
         paciente={paciente}

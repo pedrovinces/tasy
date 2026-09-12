@@ -75,7 +75,7 @@ function ImprimirEvolucao() {
 
   return (
     <div>
-      <AcoesImpressao pacienteId={paciente.id} documento="A evolução" />
+      <AcoesImpressao pacienteId={paciente.id} tipo="evolucao" documento="A evolução" />
 
       <FolhaA4
         paciente={paciente}

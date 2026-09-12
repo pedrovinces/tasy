@@ -10,9 +10,10 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
+import { registrarEvento } from "./eventos";
 import { mesmaPessoa } from "./identificacao";
 import { pacienteSchema, type Paciente, type PacienteInput } from "./schemas";
-import { normalizarSetor, SETORES } from "./setores";
+import { normalizarSetor, obterSetorSelecionado, SETORES } from "./setores";
 import { maiusculas } from "./texto";
 
 const idSchema = z.string().uuid();
@@ -105,6 +106,7 @@ export async function criarPaciente(input: PacienteInput): Promise<{ id: string 
     .select("id")
     .single();
   if (error) throw falha("criar", error, "Não foi possível cadastrar o paciente.");
+  registrarEvento("paciente_criado", paciente.setor);
   return { id: data.id as string };
 }
 
@@ -150,6 +152,7 @@ export async function atualizarPaciente(input: { id: string } & PacienteInput) {
     })
     .eq("id", id);
   if (error) throw falha("atualizar", error, "Não foi possível salvar as alterações.");
+  registrarEvento("paciente_editado", paciente.setor);
   return { ok: true };
 }
 
@@ -163,6 +166,7 @@ export async function atualizarLocalPaciente(input: { id: string; leito: string;
     .eq("id", id);
   if (error)
     throw falha("atualizar local", error, "Não foi possível atualizar o local do paciente.");
+  registrarEvento("paciente_trazido", setor);
   return { ok: true };
 }
 
@@ -174,5 +178,6 @@ export async function desativarPaciente(id: string) {
     .update({ ativo: false, updated_at: new Date().toISOString() })
     .eq("id", pacienteId);
   if (error) throw falha("desativar", error, "Não foi possível remover o paciente da lista.");
+  registrarEvento("paciente_removido", obterSetorSelecionado());
   return { ok: true };
 }
