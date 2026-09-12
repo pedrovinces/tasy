@@ -1,47 +1,62 @@
 -- ---------------------------------------------------------------------------
--- Abertura do acesso — 12/09/2026 às 23h (Brasília) = 13/09 às 02:00 UTC
+-- Reabertura do banco — para rodar AGORA
 --
--- A tela do sistema já espera essa hora sozinha (src/lib/encerramento.ts), mas
--- a tela roda no computador de quem acessa: atrasar o relógio a contorna. Quem
--- libera de verdade é a permissão no banco, revogada pela tarefa de
--- encerramento da contingência anterior.
+-- Cole no SQL Editor do Supabase e execute uma vez.
 --
--- Escolha UM dos dois caminhos abaixo.
+-- Roda inteiro em qualquer estado do banco: com ou sem as tarefas de
+-- encerramento agendadas, com ou sem a tabela de eventos criada. Nada aqui dá
+-- erro por já estar do jeito certo — o editor do Supabase roda o script numa
+-- transação só, e um único erro no meio desfaz tudo o que veio antes.
+--
+-- A espera até as 23h de 12/09 fica só na tela do sistema, por opção: o banco
+-- volta a responder a partir de agora. Vale saber o que isso significa — a
+-- verificação de horário roda no computador de quem acessa, então quem atrasar
+-- o relógio, ou chamar a API direto com a senha da equipe, entra antes da
+-- hora. O horário organiza a equipe; não é uma tranca.
 -- ---------------------------------------------------------------------------
 
--- CAMINHO 1 — à mão, às 23h (o mais simples, e sem tarefa sobrando depois)
--- ---------------------------------------------------------------------------
--- grant select, insert, update on public.pacientes to authenticated;
--- grant select, insert on public.eventos to authenticated;
+-- 1. Devolve o acesso da aplicação ------------------------------------------
+-- Se nunca foi revogado, isto não muda nada e não dá erro.
+grant select, insert, update on public.pacientes to authenticated;
 
--- CAMINHO 2 — agendado, se você não for estar disponível na hora
--- ---------------------------------------------------------------------------
--- create extension if not exists pg_cron;
---
--- select cron.schedule(
---   'contingencia-abrir-acesso',
---   '0 2 13 9 *',
---   $$grant select, insert, update on public.pacientes to authenticated;
---     grant select, insert on public.eventos to authenticated$$
--- );
---
--- ATENÇÃO: a expressão do agendador não tem campo de ano — ela dispararia de
--- novo todo 13 de setembro. Depois que rodar, remova:
---
---   select cron.unschedule('contingencia-abrir-acesso');
+-- A tabela de eventos pode ainda não existir; sem ela não há o que liberar.
+do $$
+begin
+  if to_regclass('public.eventos') is null then
+    raise notice 'Tabela public.eventos não existe — rode supabase/seeds/eventos.sql para ligar a contagem de uso.';
+  else
+    execute 'grant select, insert on public.eventos to authenticated';
+  end if;
+end $$;
+
+-- 2. Desarma o que tiver sobrado do encerramento de agosto -------------------
+-- A expressão de agendamento não tem campo de ano: uma tarefa esquecida aqui
+-- revogaria o acesso e apagaria a tabela todo 29 de agosto. Desagendar pelo
+-- nome direto falha quando a tarefa não existe, e o erro derrubaria o script
+-- inteiro — por isso a varredura.
+do $$
+declare
+  tarefa text;
+begin
+  if to_regclass('cron.job') is null then
+    raise notice 'pg_cron não instalado — nenhuma tarefa agendada para desarmar.';
+    return;
+  end if;
+  for tarefa in select jobname from cron.job where jobname like 'contingencia-%' loop
+    perform cron.unschedule(tarefa);
+    raise notice 'Tarefa desarmada: %', tarefa;
+  end loop;
+end $$;
 
 -- ---------------------------------------------------------------------------
--- Limpeza das tarefas da contingência anterior (faça isto de qualquer forma)
+-- Conferência (rode depois, uma consulta de cada vez)
 -- ---------------------------------------------------------------------------
--- As duas tarefas de encerramento continuam agendadas e, pelo mesmo motivo do
--- ano ausente, revogariam o acesso e apagariam a tabela todo 29 de agosto.
+-- Os pacientes de agosto ainda estão aí?
+--   select count(*) from public.pacientes;
 --
---   select cron.unschedule('contingencia-encerrar-acesso');
---   select cron.unschedule('contingencia-expurgar-pacientes');
-
--- ---------------------------------------------------------------------------
--- Conferência
--- ---------------------------------------------------------------------------
---   select jobname, schedule, active from cron.job;
---   select grantee, privilege_type from information_schema.role_table_grants
+-- Devem aparecer SELECT, INSERT e UPDATE:
+--   select privilege_type from information_schema.role_table_grants
 --    where table_name = 'pacientes' and grantee = 'authenticated';
+--
+-- Não deve sobrar tarefa da contingência:
+--   select jobname, schedule, active from cron.job;
