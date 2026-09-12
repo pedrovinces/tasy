@@ -6,11 +6,12 @@ import {
   useRouter,
   HeadContent,
 } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { eVersaoAntiga, podeRecarregar, recarregarNaVersaoNova } from "@/lib/versao-antiga";
 
 function NotFoundComponent() {
   return (
@@ -40,6 +41,44 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
+
+  // Aba aberta durante uma publicação: o pedaço de JavaScript que ela procura
+  // não existe mais. Não é falha de nada — é versão antiga, e recarregar
+  // resolve. Ver src/lib/versao-antiga.ts.
+  const [recarregando] = useState(() => eVersaoAntiga(error) && podeRecarregar());
+  useEffect(() => {
+    if (recarregando) recarregarNaVersaoNova();
+  }, [recarregando]);
+
+  if (recarregando) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <p className="text-sm text-muted-foreground">Atualizando o sistema…</p>
+      </div>
+    );
+  }
+
+  if (eVersaoAntiga(error)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="max-w-md text-center">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+            O sistema foi atualizado
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Esta aba está com uma versão antiga. Recarregue a página para continuar — nada do que
+            você digitou foi enviado ainda.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Recarregar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

@@ -1,0 +1,20 @@
+# Por que este arquivo existe: a tela de erro "não é um tipo MIME de JavaScript
+# válido".
+#
+# Cada publicação renomeia os pedaços de JavaScript. O index.html é o único
+# arquivo que diz quais são os nomes da versão atual — se o navegador reaproveita
+# um index.html guardado em cache, ele pede pedaços que não existem mais, a
+# hospedagem devolve o index.html no lugar (regra do _redirects) e a tela quebra.
+# Recarregar não resolve, porque o index.html volta do mesmo cache.
+#
+# A regra abaixo obriga a revalidar o index.html a cada carregamento. Os arquivos
+# de /assets podem ficar guardados para sempre: o nome de cada um carrega o
+# resumo do conteúdo, então um arquivo novo é sempre um nome novo.
+#
+# A regra de /assets vem depois de propósito: quando as duas casam, vale a
+# última.
+/*
+  Cache-Control: no-cache
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

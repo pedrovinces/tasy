@@ -60,8 +60,15 @@ export function registrarEvento(tipo: TipoEvento, setor: string | null): void {
   })();
 }
 
-/** "impressao_receita" → "receita"; qualquer outro tipo devolve null. */
-export function documentoDaImpressao(tipo: string): TipoDocumento | null {
+/**
+ * "impressao_receita" → "receita"; qualquer outro tipo devolve null.
+ *
+ * Aceita o que vier: a tabela é lida com `select *`, e uma linha inesperada —
+ * gravada à mão, vinda de uma versão futura — não pode derrubar o painel
+ * inteiro por causa de um campo faltando.
+ */
+export function documentoDaImpressao(tipo: unknown): TipoDocumento | null {
+  if (typeof tipo !== "string") return null;
   const nome = tipo.startsWith("impressao_") ? tipo.slice("impressao_".length) : null;
   return (TIPOS_DE_DOCUMENTO as readonly string[]).includes(nome ?? "")
     ? (nome as TipoDocumento)
