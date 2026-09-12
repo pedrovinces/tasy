@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { sistemaEncerrado } from "@/lib/encerramento";
+import { sistemaAindaFechado, sistemaEncerrado } from "@/lib/encerramento";
 import { registrarEvento } from "@/lib/eventos";
 
 // Conta universal da unidade. Como toda a equipe entra pela mesma conta, a
@@ -23,6 +23,7 @@ const EMAIL_ACESSO = `${USUARIO_ACESSO}@${DOMINIO_INTERNO}`;
 export const Route = createFileRoute("/login")({
   // Não faz sentido oferecer login que não vai levar a lugar nenhum.
   beforeLoad: () => {
+    if (sistemaAindaFechado()) throw redirect({ to: "/em-breve" });
     if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
   },
   head: () => ({

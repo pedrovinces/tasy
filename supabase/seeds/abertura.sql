@@ -1,0 +1,47 @@
+-- ---------------------------------------------------------------------------
+-- Abertura do acesso — 12/09/2026 às 23h (Brasília) = 13/09 às 02:00 UTC
+--
+-- A tela do sistema já espera essa hora sozinha (src/lib/encerramento.ts), mas
+-- a tela roda no computador de quem acessa: atrasar o relógio a contorna. Quem
+-- libera de verdade é a permissão no banco, revogada pela tarefa de
+-- encerramento da contingência anterior.
+--
+-- Escolha UM dos dois caminhos abaixo.
+-- ---------------------------------------------------------------------------
+
+-- CAMINHO 1 — à mão, às 23h (o mais simples, e sem tarefa sobrando depois)
+-- ---------------------------------------------------------------------------
+-- grant select, insert, update on public.pacientes to authenticated;
+-- grant select, insert on public.eventos to authenticated;
+
+-- CAMINHO 2 — agendado, se você não for estar disponível na hora
+-- ---------------------------------------------------------------------------
+-- create extension if not exists pg_cron;
+--
+-- select cron.schedule(
+--   'contingencia-abrir-acesso',
+--   '0 2 13 9 *',
+--   $$grant select, insert, update on public.pacientes to authenticated;
+--     grant select, insert on public.eventos to authenticated$$
+-- );
+--
+-- ATENÇÃO: a expressão do agendador não tem campo de ano — ela dispararia de
+-- novo todo 13 de setembro. Depois que rodar, remova:
+--
+--   select cron.unschedule('contingencia-abrir-acesso');
+
+-- ---------------------------------------------------------------------------
+-- Limpeza das tarefas da contingência anterior (faça isto de qualquer forma)
+-- ---------------------------------------------------------------------------
+-- As duas tarefas de encerramento continuam agendadas e, pelo mesmo motivo do
+-- ano ausente, revogariam o acesso e apagariam a tabela todo 29 de agosto.
+--
+--   select cron.unschedule('contingencia-encerrar-acesso');
+--   select cron.unschedule('contingencia-expurgar-pacientes');
+
+-- ---------------------------------------------------------------------------
+-- Conferência
+-- ---------------------------------------------------------------------------
+--   select jobname, schedule, active from cron.job;
+--   select grantee, privilege_type from information_schema.role_table_grants
+--    where table_name = 'pacientes' and grantee = 'authenticated';

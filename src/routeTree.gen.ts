@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EmBreveRouteImport } from './routes/em-breve'
 import { Route as EncerradoRouteImport } from './routes/encerrado'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -39,6 +40,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmBreveRoute = EmBreveRouteImport.update({
+  id: '/em-breve',
+  path: '/em-breve',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EncerradoRoute = EncerradoRouteImport.update({
@@ -125,6 +131,7 @@ const AuthenticatedPacientesPacienteIdReceitaNovaRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/em-breve': typeof EmBreveRoute
   '/encerrado': typeof EncerradoRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/em-breve': typeof EmBreveRoute
   '/encerrado': typeof EncerradoRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/em-breve': typeof EmBreveRoute
   '/encerrado': typeof EncerradoRoute
   '/login': typeof LoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/em-breve'
     | '/encerrado'
     | '/login'
     | '/dashboard'
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/em-breve'
     | '/encerrado'
     | '/login'
     | '/dashboard'
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/em-breve'
     | '/encerrado'
     | '/login'
     | '/_authenticated/dashboard'
@@ -240,6 +252,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  EmBreveRoute: typeof EmBreveRoute
   EncerradoRoute: typeof EncerradoRoute
   LoginRoute: typeof LoginRoute
 }
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/em-breve': {
+      id: '/em-breve'
+      path: '/em-breve'
+      fullPath: '/em-breve'
+      preLoaderRoute: typeof EmBreveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/encerrado': {
@@ -414,6 +434,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  EmBreveRoute: EmBreveRoute,
   EncerradoRoute: EncerradoRoute,
   LoginRoute: LoginRoute,
 }

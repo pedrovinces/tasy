@@ -2,10 +2,11 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { sistemaEncerrado } from "@/lib/encerramento";
+import { sistemaAindaFechado, sistemaEncerrado } from "@/lib/encerramento";
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {
+    if (sistemaAindaFechado()) throw redirect({ to: "/em-breve" });
     if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
   },
   head: () => ({

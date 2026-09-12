@@ -10,6 +10,22 @@
 // de permissões no banco, no mesmo instante — sem ela, quem tem a senha
 // alcança os dados por fora do site.
 
+// ABERTURA — 12/09/2026 às 23h de Brasília (UTC-3) = 13/09 às 02:00 UTC.
+//
+// Antes desta hora o sistema não abre para ninguém: a raiz, a tela de senha e
+// as telas internas levam para /em-breve. Não precisa de interruptor como o
+// encerramento: uma data de abertura se desliga sozinha quando passa.
+//
+// Mesma ressalva de sempre, e ela importa: a verificação usa o relógio de quem
+// acessa, então atrasar o relógio contorna a espera. O que realmente libera o
+// acesso é devolver a permissão da aplicação no banco — ver
+// supabase/seeds/abertura.sql.
+export const ABERTURA = new Date("2026-09-13T02:00:00Z");
+
+export function sistemaAindaFechado(agora: Date = new Date()): boolean {
+  return agora.getTime() < ABERTURA.getTime();
+}
+
 // REABERTO POR TEMPO INDETERMINADO — 12/09/2026.
 //
 // A contingência de 28/08 terminou e o sistema ficou bloqueado, como
