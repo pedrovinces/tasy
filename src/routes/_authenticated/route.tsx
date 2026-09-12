@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import {
   dentroDoAviso,
-  sistemaAindaFechado,
+  esperandoAbertura,
   sistemaEncerrado,
   tempoRestante,
 } from "@/lib/encerramento";
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
     // Antes de qualquer coisa: passado o prazo, nem a sessão vale mais.
     // Antes da hora de abertura ninguém entra, nem quem já tem sessão.
-    if (sistemaAindaFechado()) throw redirect({ to: "/em-breve" });
+    if (esperandoAbertura()) throw redirect({ to: "/em-breve" });
     if (sistemaEncerrado()) throw redirect({ to: "/encerrado" });
     // getSession lê a sessão guardada no navegador e só vai à rede quando o
     // token expirou. O getUser que estava aqui ia à rede a CADA navegação: no
