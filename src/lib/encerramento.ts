@@ -10,6 +10,20 @@
 // de permissões no banco, no mesmo instante — sem ela, quem tem a senha
 // alcança os dados por fora do site.
 
+// REABERTO POR TEMPO INDETERMINADO — 12/09/2026.
+//
+// A contingência de 28/08 terminou e o sistema ficou bloqueado, como
+// programado. Foi reaberto sem nova data de fechamento, a pedido.
+//
+// Enquanto esta constante for `false`, as datas abaixo ficam só de registro
+// histórico: nada bloqueia, nenhuma faixa de contagem aparece e a tela de
+// encerramento só é alcançada por quem digitar /encerrado.
+//
+// PARA REPROGRAMAR: ponha `true` e ajuste as três datas. Não esqueça do banco —
+// a tela sozinha não encerra nada, e o `supabase/encerramento.sql` explica por
+// quê.
+const ENCERRAMENTO_PROGRAMADO = false;
+
 // Duas datas de encerramento, de propósito.
 //
 // A contagem da faixa mira a meia-noite: é a hora anunciada para a equipe, a
@@ -33,6 +47,7 @@ export const EXPURGO = new Date("2026-08-29T05:30:00Z");
 const AVISO_ANTECEDENCIA_MS = 2 * 60 * 60 * 1000;
 
 export function sistemaEncerrado(agora: Date = new Date()): boolean {
+  if (!ENCERRAMENTO_PROGRAMADO) return false;
   return agora.getTime() >= ENCERRAMENTO.getTime();
 }
 
@@ -43,6 +58,7 @@ export function msAteEncerrar(agora: Date = new Date()): number {
 // A faixa acompanha as duas horas anteriores à hora anunciada e continua
 // visível na meia hora de margem, até o bloqueio.
 export function dentroDoAviso(agora: Date = new Date()): boolean {
+  if (!ENCERRAMENTO_PROGRAMADO) return false;
   if (sistemaEncerrado(agora)) return false;
   return msAteEncerrar(agora) <= AVISO_ANTECEDENCIA_MS;
 }
@@ -50,6 +66,7 @@ export function dentroDoAviso(agora: Date = new Date()): boolean {
 // "3 h 20 min", "45 min", "2 min" — texto curto para caber na faixa. Passada a
 // hora anunciada, não há contagem: o bloqueio pode cair a qualquer momento.
 export function tempoRestante(agora: Date = new Date()): string | null {
+  if (!ENCERRAMENTO_PROGRAMADO) return null;
   const restante = msAteEncerrar(agora);
   if (restante <= 0) return null;
   const minutos = Math.max(1, Math.ceil(restante / 60000));
