@@ -16,10 +16,11 @@
 // as telas internas levam para /em-breve. Não precisa de interruptor como o
 // encerramento: uma data de abertura se desliga sozinha quando passa.
 //
-// Mesma ressalva de sempre, e ela importa: a verificação usa o relógio de quem
-// acessa, então atrasar o relógio contorna a espera. O que realmente libera o
-// acesso é devolver a permissão da aplicação no banco — ver
-// supabase/seeds/abertura.sql.
+// A espera é só de tela, por opção: o banco ficou liberado desde já
+// (supabase/seeds/abertura.sql). Isso quer dizer que a verificação roda no
+// computador de quem acessa — quem atrasar o relógio, ou chamar a API direto
+// com a senha da equipe, entra antes da hora. Serve para organizar a equipe,
+// não para trancar o acesso.
 export const ABERTURA = new Date("2026-09-13T02:00:00Z");
 
 export function sistemaAindaFechado(agora: Date = new Date()): boolean {
