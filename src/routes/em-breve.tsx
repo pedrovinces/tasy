@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ABERTURA, sistemaAindaFechado } from "@/lib/encerramento";
+import { ABERTURA, esperandoAbertura } from "@/lib/encerramento";
 import { formatarDataHora } from "@/lib/format";
 
 // Tela de espera, antes da hora de abertura. Fica fora de `_authenticated`
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/em-breve")({
   // Passada a hora, ninguém fica preso nesta tela: quem tiver o endereço
   // guardado ou a aba aberta é mandado para a entrada normal.
   beforeLoad: () => {
-    if (!sistemaAindaFechado()) throw redirect({ to: "/" });
+    if (!esperandoAbertura()) throw redirect({ to: "/" });
   },
   head: () => ({
     meta: [

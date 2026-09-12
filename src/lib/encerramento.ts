@@ -27,6 +27,44 @@ export function sistemaAindaFechado(agora: Date = new Date()): boolean {
   return agora.getTime() < ABERTURA.getTime();
 }
 
+// Passe livre para conferir o sistema antes da hora, num aparelho só.
+//
+// Abrir qualquer endereço com ?antecipar=<a palavra abaixo> marca ESTE
+// navegador, e ele passa a entrar antes das 23h. ?antecipar=sair desfaz.
+//
+// Não é segurança, e não adianta fingir que é: a palavra viaja no pacote que o
+// navegador baixa, então quem abrir o código do site a encontra. O que ela
+// resolve é outra coisa — evitar que a equipe, que conhece os endereços e a
+// senha, comece a usar antes da hora combinada.
+//
+// A marca é gravada junto com a data de abertura que ela libera. Assim, se um
+// dia for marcada uma nova espera, este aparelho não a fura em silêncio por
+// causa de um passe esquecido de meses atrás.
+const CHAVE_ANTECIPACAO = "contingencia.antecipar";
+const PALAVRA_ANTECIPACAO = "conferir-9f4c2a";
+
+export function acessoAntecipado(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const pedido = new URLSearchParams(window.location.search).get("antecipar");
+    if (pedido === PALAVRA_ANTECIPACAO) {
+      window.localStorage.setItem(CHAVE_ANTECIPACAO, ABERTURA.toISOString());
+    } else if (pedido === "sair") {
+      window.localStorage.removeItem(CHAVE_ANTECIPACAO);
+    }
+    return window.localStorage.getItem(CHAVE_ANTECIPACAO) === ABERTURA.toISOString();
+  } catch {
+    // Navegação anônima e armazenamento bloqueado caem aqui: sem passe, espera
+    // como todo mundo.
+    return false;
+  }
+}
+
+/** A espera vale para este navegador? É o que as telas perguntam. */
+export function esperandoAbertura(): boolean {
+  return sistemaAindaFechado() && !acessoAntecipado();
+}
+
 // REABERTO POR TEMPO INDETERMINADO — 12/09/2026.
 //
 // A contingência de 28/08 terminou e o sistema ficou bloqueado, como
